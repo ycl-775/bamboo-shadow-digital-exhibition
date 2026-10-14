@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>竹艺新生 · 非遗传承与创新 — 竹影留青</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;600;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bamboo:#4F7459;--bamboo-deep:#2E4A39;--bamboo-dark:#22382B;
+    --rice:#F5F0E4;--rice-dark:#EAE2CF;--brown:#4A382A;--ink:#2B2824;
+    --seal:#A93428;--gold:#B99A5F;--flesh:#D9B47E;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:"Noto Serif SC","Songti SC","STSong","SimSun",serif;background:var(--rice);color:var(--ink);overflow-x:hidden;line-height:1.9;}
+  ::selection{background:var(--bamboo);color:var(--rice);}
+  #leaves{position:fixed;inset:0;pointer-events:none;z-index:6;}
+
+  /* ---------- 导航 ---------- */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:22px 5vw;transition:all .45s ease;}
+  nav .logo{font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;font-size:1.7rem;color:var(--rice);letter-spacing:.15em;text-decoration:none;display:flex;align-items:center;gap:12px;transition:color .45s ease;}
+  nav .logo .seal-mini{width:34px;height:34px;background:var(--seal);color:#fff;font-size:1.05rem;display:flex;align-items:center;justify-content:center;border-radius:4px;transform:rotate(-3deg);box-shadow:0 2px 8px rgba(0,0,0,.25);line-height:1;}
+  nav ul{display:flex;gap:38px;list-style:none;}
+  nav ul a{color:rgba(245,240,228,.88);text-decoration:none;font-size:.95rem;letter-spacing:.25em;position:relative;padding:4px 0;transition:color .45s ease;}
+  nav ul a::after{content:"";position:absolute;left:0;bottom:-2px;width:0;height:1px;background:currentColor;transition:width .35s ease;}
+  nav ul a:hover::after,nav ul a.active::after{width:100%;}
+  nav ul a.active{font-weight:600;}
+  nav.scrolled{background:rgba(245,240,228,.94);backdrop-filter:blur(10px);box-shadow:0 2px 20px rgba(43,40,36,.12);padding:14px 5vw;}
+  nav.scrolled .logo,nav.scrolled ul a{color:var(--brown);}
+
+  /* ---------- 页首 ---------- */
+  .page-hero{position:relative;height:56vh;min-height:420px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .page-hero img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .page-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(34,56,43,.6),rgba(34,56,43,.35) 50%,rgba(43,40,36,.7));}
+  .page-hero .inner{position:relative;z-index:2;text-align:center;color:var(--rice);padding:0 6vw;}
+  .page-hero .badge{display:inline-block;border:1px solid rgba(245,240,228,.55);padding:6px 22px;font-size:.8rem;letter-spacing:.45em;text-indent:.45em;margin-bottom:24px;}
+  .page-hero h1{font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;font-size:clamp(2.8rem,7vw,5rem);letter-spacing:.15em;text-shadow:0 6px 30px rgba(0,0,0,.45);}
+  .page-hero .sub{margin-top:14px;letter-spacing:.5em;text-indent:.5em;color:rgba(245,240,228,.85);font-size:clamp(.9rem,1.6vw,1.1rem);}
+
+  /* ---------- 通用 ---------- */
+  section{padding:100px 8vw;position:relative;}
+  .wrap{max-width:1180px;margin:0 auto;position:relative;z-index:2;}
+  .sec-head{text-align:center;margin-bottom:56px;}
+  .sec-label{color:var(--bamboo);font-size:.85rem;letter-spacing:.5em;text-indent:.5em;margin-bottom:14px;}
+  .sec-title{font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;font-size:clamp(2rem,4.5vw,2.8rem);color:var(--brown);letter-spacing:.1em;}
+  .sec-sub{margin-top:12px;color:#8d8171;font-size:.95rem;letter-spacing:.2em;}
+  .reveal{opacity:0;transform:translateY(36px);transition:opacity .9s ease,transform .9s ease;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+  .d1{transition-delay:.12s;} .d2{transition-delay:.24s;} .d3{transition-delay:.36s;}
+
+  /* ---------- 现状 ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
+  .stat{
+    background:#FBF8F0;border:1px solid rgba(74,56,42,.15);
+    padding:34px 22px;text-align:center;transition:all .35s ease;
+  }
+  .stat:hover{transform:translateY(-8px);border-color:var(--bamboo);box-shadow:0 16px 36px rgba(46,74,57,.12);}
+  .stat .big{font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;font-size:2rem;color:var(--bamboo-deep);letter-spacing:.05em;margin-bottom:10px;}
+  .stat p{font-size:.85rem;color:#8d8171;}
+
+  /* ---------- 传承人 ---------- */
+  #masters{background:var(--rice-dark);}
+  .master-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+  .m-card{background:var(--rice);overflow:hidden;box-shadow:0 10px 30px rgba(43,40,36,.08);transition:all .45s ease;}
+  .m-card:hover{transform:translateY(-10px);box-shadow:0 26px 50px rgba(43,40,36,.18);}
+  .m-img{aspect-ratio:4/3;overflow:hidden;}
+  .m-img img{width:100%;height:100%;object-fit:cover;transition:transform .8s ease;filter:saturate(.9);}
+  .m-card:hover .m-img img{transform:scale(1.07);}
+  .m-body{padding:26px 26px 30px;}
+  .m-body .era{color:var(--bamboo);font-size:.78rem;letter-spacing:.35em;margin-bottom:8px;}
+  .m-body h3{font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;font-size:1.5rem;color:var(--brown);letter-spacing:.1em;margin-bottom:12px;}
+  .m-body p{font-size:.9rem;color:#5a5348;text-align:justify;}
+
+  /* ---------- 挑战与新生 ---------- */
+  .vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;}
+  .vs-panel{padding:40px 36px;border:1px solid rgba(74,56,42,.18);}
+  .vs-panel.challenge{background:#F0EADC;}
+  .vs-panel.hope{background:var(--bamboo-deep);color:var(--rice);border-color:var(--bamboo-deep);}
+  .vs-panel h3{font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;font-size:1.6rem;letter-spacing:.15em;margin-bottom:20px;}
+  .vs-panel.challenge h3{color:var(--brown);}
+  .vs-panel ul{list-style:none;}
+  .vs-panel li{padding:12px 0 12px 30px;position:relative;font-size:.95rem;border-bottom:1px dashed rgba(74,56,42,.18);}
+  .vs-panel.hope li{border-bottom-color:rgba(245,240,228,.18);}
+  .vs-panel li:last-child{border-bottom:none;}
+  .vs-panel li::before{content:"";position:absolute;left:0;top:22px;width:12px;height:2px;background:currentColor;opacity:.5;}
+
+  /* ---------- 文创工坊 ---------- */
+  #workshop{background:linear-gradient(160deg,var(--bamboo-deep),var(--bamboo-dark));}
+  #workshop .sec-title{color:var(--rice);}
+  #workshop .sec-label{color:var(--gold);}
+  #workshop .sec-sub{color:rgba(245,240,228,.6);}
+  .ws-grid{display:grid;grid-template-columns:1fr auto;gap:56px;align-items:center;}
+  .opt-group{margin-bottom:30px;}
+  .opt-group h4{color:var(--gold);font-size:.85rem;letter-spacing:.4em;margin-bottom:16px;font-weight:400;}
+  .opt-btns{display:flex;gap:12px;flex-wrap:wrap;}
+  .opt-btn{
+    background:rgba(245,240,228,.06);border:1px solid rgba(245,240,228,.25);
+    color:rgba(245,240,228,.8);font-family:inherit;cursor:pointer;
+    padding:12px 26px;font-size:.92rem;letter-spacing:.2em;transition:all .3s ease;
+  }
+  .opt-btn:hover{background:rgba(245,240,228,.15);}
+  .opt-btn.on{background:var(--gold);border-color:var(--gold);color:var(--bamboo-dark);font-weight:600;}
+  .ws-result{
+    margin-top:8px;border-left:3px solid var(--gold);padding:16px 22px;
+    color:var(--rice);background:rgba(245,240,228,.06);
+  }
+  .ws-result .r-name{font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;font-size:1.35rem;letter-spacing:.1em;margin-bottom:6px;transition:opacity .3s;}
+  .ws-result .r-line{font-size:.9rem;color:rgba(245,240,228,.75);transition:opacity .3s;}
+  .ws-preview{text-align:center;}
+  .ws-preview svg{width:min(320px,72vw);height:auto;filter:drop-shadow(0 24px 40px rgba(0,0,0,.4));}
+  .ws-preview .pv-tag{margin-top:16px;color:rgba(245,240,228,.55);font-size:.78rem;letter-spacing:.3em;}
+  .ws-random{
+    margin-top:22px;background:none;border:1px solid rgba(245,240,228,.35);color:var(--rice);
+    font-family:inherit;font-size:.85rem;letter-spacing:.25em;padding:10px 28px;cursor:pointer;transition:all .3s;
+  }
+  .ws-random:hover{background:var(--gold);border-color:var(--gold);color:var(--bamboo-dark);}
+
+  /* ---------- 数字传播 ---------- */
+  .spread-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
+  .sp-card{
+    background:#FBF8F0;border:1px solid rgba(74,56,42,.15);
+    padding:36px 24px;text-align:center;transition:all .35s ease;
+  }
+  .sp-card:hover{transform:translateY(-8px);border-color:var(--bamboo);box-shadow:0 16px 36px rgba(46,74,57,.12);}
+  .sp-icon{
+    width:60px;height:60px;margin:0 auto 18px;background:var(--bamboo-deep);color:var(--gold);
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;font-size:1.6rem;
+    display:flex;align-items:center;justify-content:center;border-radius:6px;transform:rotate(-3deg);
+  }
+  .sp-card h4{color:var(--brown);letter-spacing:.25em;text-indent:.25em;font-size:1.02rem;margin-bottom:10px;}
+  .sp-card p{font-size:.82rem;color:#8d8171;}
+
+  /* ---------- 收尾 ---------- */
+  .finale{
+    position:relative;padding:150px 8vw;text-align:center;overflow:hidden;
+  }
+  .finale img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .finale::before{content:"";position:absolute;inset:0;background:rgba(34,56,43,.72);}
+  .finale .inner{position:relative;z-index:2;}
+  .finale .f-big{
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:clamp(1.8rem,5vw,3.4rem);color:var(--rice);letter-spacing:.15em;line-height:1.6;
+    text-shadow:0 6px 30px rgba(0,0,0,.4);
+  }
+  .finale .f-btn{
+    display:inline-block;margin-top:44px;border:1px solid rgba(245,240,228,.6);
+    color:var(--rice);text-decoration:none;padding:14px 46px;letter-spacing:.35em;text-indent:.35em;
+    font-size:.92rem;transition:all .35s ease;
+  }
+  .finale .f-btn:hover{background:var(--rice);color:var(--bamboo-deep);}
+
+  /* ---------- 上下卷 ---------- */
+  .pagenav{display:flex;justify-content:space-between;gap:20px;max-width:1000px;margin:0 auto;}
+  .pn{flex:1;text-align:center;text-decoration:none;border:1px solid rgba(74,56,42,.25);color:var(--brown);padding:20px 16px;font-size:.95rem;letter-spacing:.2em;transition:all .35s ease;background:#FBF8F0;}
+  .pn:hover{background:var(--bamboo-deep);border-color:var(--bamboo-deep);color:var(--rice);}
+  .pn small{display:block;font-size:.72rem;letter-spacing:.3em;color:#9a8f7d;margin-bottom:6px;transition:color .35s;}
+  .pn:hover small{color:rgba(245,240,228,.7);}
+
+  footer{background:var(--brown);color:rgba(245,240,228,.75);text-align:center;padding:56px 8vw 40px;}
+  footer .f-title{font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;font-size:1.8rem;color:var(--rice);letter-spacing:.2em;margin-bottom:12px;}
+  footer .f-sub{font-size:.85rem;letter-spacing:.3em;margin-bottom:26px;}
+  footer .f-line{width:60px;height:1px;background:rgba(245,240,228,.3);margin:0 auto 26px;}
+  footer .f-note{font-size:.78rem;color:rgba(245,240,228,.45);letter-spacing:.12em;}
+
+  @media (max-width:960px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .master-grid{grid-template-columns:1fr;max-width:520px;margin:0 auto;}
+    .vs-grid{grid-template-columns:1fr;}
+    .ws-grid{grid-template-columns:1fr;gap:44px;}
+    .spread-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:640px){
+    nav ul{display:none;}
+    section{padding:80px 7vw;}
+    .stats,.spread-grid{grid-template-columns:1fr;}
+    .pagenav{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="leaves"></canvas>
+
+<nav id="nav">
+  <a class="logo" href="index.html"><span class="seal-mini">留<br>青</span>竹影留青</a>
+  <ul>
+    <li><a href="index.html">首页</a></li>
+    <li><a href="history.html">千年竹史</a></li>
+    <li><a href="craft.html">匠心工艺</a></li>
+    <li><a href="gallery.html">竹刻艺术</a></li>
+    <li><a href="heritage.html" class="active">传承新生</a></li>
+  </ul>
+</nav>
+
+<header class="page-hero">
+  <img class="bg" src="images/heritage-hero.jpg" alt="竹艺新生">
+  <div class="inner">
+    <div class="badge">第 伍 卷</div>
+    <h1>竹艺新生</h1>
+    <p class="sub">非 遗 传 承 与 创 新</p>
+  </div>
+</header>
+
+<!-- 保护现状 -->
+<section id="now">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-label">保 护 现 状</div>
+      <h2 class="sec-title">国家守护 · 薪火有继</h2>
+      <p class="sec-sub">PRESERVATION TODAY</p>
+    </div>
+    <div class="stats">
+      <div class="stat reveal d1"><div class="big">2008</div><p>入选第二批国家级非物质文化遗产名录</p></div>
+      <div class="stat reveal d2"><div class="big">三代相传</div><p>徐氏竹刻世家，家学相继、代有传人</p></div>
+      <div class="stat reveal d2"><div class="big">传习基地</div><p>非遗工坊、大师工作室与校园课堂并举</p></div>
+      <div class="stat reveal d3"><div class="big">数字新生</div><p>数字展馆、影像记录让技艺永续流传</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 传承故事 -->
+<section id="masters">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-label">传 承 故 事</div>
+      <h2 class="sec-title">一代人有一代人的刀</h2>
+      <p class="sec-sub">STORIES OF THE MASTERS</p>
+    </div>
+    <div class="master-grid">
+      <div class="m-card reveal d1">
+        <div class="m-img"><img src="images/master-xusubai.jpg" alt="徐素白"></div>
+        <div class="m-body">
+          <div class="era">近现代 · 开宗立派</div>
+          <h3>徐素白</h3>
+          <p>博采书画名家之长融入竹刻，作品清雅秀润、自成一格，让常州留青从工艺走向艺术，奠定了当代留青竹刻的审美根基。</p>
+        </div>
+      </div>
+      <div class="m-card reveal d2">
+        <div class="m-img"><img src="images/master-baishifeng.jpg" alt="白士风"></div>
+        <div class="m-body">
+          <div class="era">近现代 · 刀笔双绝</div>
+          <h3>白士风</h3>
+          <p>刀法精妙、题材广阔，山水花鸟人物无所不精，获评中国工艺美术大师。其刀下青筠层次分明，被誉为"留青刀笔第一人"。</p>
+        </div>
+      </div>
+      <div class="m-card reveal d3">
+        <div class="m-img"><img src="images/master-xubingfang.jpg" alt="徐秉方"></div>
+        <div class="m-body">
+          <div class="era">当代 · 承古开今</div>
+          <h3>徐秉方</h3>
+          <p>徐素白之子，中国工艺美术大师、国家级非遗代表性传承人。承家学而开新境，携女儿及众徒传艺，让千年刀笔后继有人。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 挑战与新生 -->
+<section id="vs">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-label">传 承 之 思</div>
+      <h2 class="sec-title">古老的技艺 · 年轻的答卷</h2>
+      <p class="sec-sub">CHALLENGES & RENEWAL</p>
+    </div>
+    <div class="vs-grid">
+      <div class="vs-panel challenge reveal d1">
+        <h3>面临的挑战</h3>
+        <ul>
+          <li>学艺周期漫长，"十年磨一刀"，年轻人望而却步</li>
+          <li>传承人多已年长，口传心授的技艺面临断层</li>
+          <li>手作成本高、受众小众，市场空间有限</li>
+          <li>优质竹材与完整工序的记录亟需系统化</li>
+        </ul>
+      </div>
+      <div class="vs-panel hope reveal d2">
+        <h3>新生的路径</h3>
+        <ul>
+          <li>文创设计：书签、竹牌、茶则，让非遗走进日常</li>
+          <li>研学体验：校园课程与工坊体验培育年轻爱好者</li>
+          <li>数字记录：高清影像、三维扫描为技艺永久存档</li>
+          <li>云端传播：数字展馆跨越地域，触达千万观众</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 数字文创工坊 -->
+<section id="workshop">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-label">互 动 体 验</div>
+      <h2 class="sec-title">数字文创工坊</h2>
+      <p class="sec-sub">DESIGN YOUR OWN · 选一种纹样，择一件载体，生成你的专属文创</p>
+    </div>
+    <div class="ws-grid">
+      <div class="reveal d1">
+        <div class="opt-group">
+          <h4>第一步 · 选择纹样</h4>
+          <div class="opt-btns" id="patBtns">
+            <button class="opt-btn on" data-pat="zhu">墨竹</button>
+            <button class="opt-btn" data-pat="shan">山水</button>
+            <button class="opt-btn" data-pat="niao">花鸟</button>
+          </div>
+        </div>
+        <div class="opt-group">
+          <h4>第二步 · 选择载体</h4>
+          <div class="opt-btns" id="carBtns">
+            <button class="opt-btn on" data-car="bookmark">书签</button>
+            <button class="opt-btn" data-car="plate">竹牌</button>
+            <button class="opt-btn" data-car="weight">镇纸</button>
+          </div>
+        </div>
+        <div class="ws-result">
+          <div class="r-name" id="rName"></div>
+          <div class="r-line" id="rLine"></div>
+        </div>
+        <button class="ws-random" id="wsRandom">✦ 随机来一款</button>
+      </div>
+      <div class="ws-preview reveal d2">
+        <svg viewBox="0 0 360 400" id="wsSvg">
+          <defs>
+            <linearGradient id="gCar" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#E7C491"/><stop offset="1" stop-color="#C79E66"/>
+            </linearGradient>
+            <!-- 纹样：墨竹 -->
+            <g id="pat-zhu" stroke-linecap="round">
+              <path d="M0 90 C10 40 25 0 60 -60" fill="none" stroke="#3E6B4A" stroke-width="10"/>
+              <path d="M18 20 C40 8 55 5 75 10" fill="none" stroke="#3E6B4A" stroke-width="6"/>
+              <path d="M60 -60 Q90 -80 115 -72 Q88 -52 60 -60 Z" fill="#3E6B4A"/>
+              <path d="M75 10 Q105 2 122 18 Q95 30 75 10 Z" fill="#3E6B4A"/>
+              <path d="M75 10 Q88 40 78 66 Q62 40 75 10 Z" fill="#3E6B4A"/>
+              <path d="M60 -60 Q72 -30 62 -6 Q48 -32 60 -60 Z" fill="#3E6B4A"/>
+            </g>
+            <!-- 纹样：山水 -->
+            <g id="pat-shan" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M-90 40 L-45 -30 L-10 30 L25 -45 L60 20 L95 -15" fill="none" stroke="#3E6B4A" stroke-width="8"/>
+              <path d="M-80 68 Q-55 58 -30 68 T20 68 T70 68" fill="none" stroke="#3E6B4A" stroke-width="5"/>
+              <circle cx="68" cy="-58" r="13" fill="#3E6B4A"/>
+            </g>
+            <!-- 纹样：花鸟 -->
+            <g id="pat-niao" stroke-linecap="round">
+              <path d="M-90 60 C-40 45 30 50 90 40" fill="none" stroke="#3E6B4A" stroke-width="6"/>
+              <g fill="#3E6B4A">
+                <ellipse cx="-38" cy="-26" rx="10" ry="17" transform="rotate(0 -38 -26)"/>
+                <ellipse cx="-38" cy="-26" rx="10" ry="17" transform="rotate(72 -38 -26)"/>
+                <ellipse cx="-38" cy="-26" rx="10" ry="17" transform="rotate(144 -38 -26)"/>
+                <ellipse cx="-38" cy="-26" rx="10" ry="17" transform="rotate(216 -38 -26)"/>
+                <ellipse cx="-38" cy="-26" rx="10" ry="17" transform="rotate(288 -38 -26)"/>
+                <circle cx="-38" cy="-26" r="6" fill="#A93428"/>
+                <path d="M28 38 Q42 12 68 20 Q58 28 56 38 Q68 36 76 44 Q58 52 44 48 Q33 46 28 38 Z"/>
+              </g>
+            </g>
+          </defs>
+          <!-- 载体与纹样由 JS 组合渲染 -->
+          <g id="carrierLayer"></g>
+          <g id="patLayer" style="transition:opacity .35s ease;"></g>
+        </svg>
+        <div class="pv-tag">实 时 预 览 · 留 青 效 果</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 数字传播 -->
+<section id="spread">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-label">数 字 赋 能</div>
+      <h2 class="sec-title">让非遗被更多人看见</h2>
+      <p class="sec-sub">DIGITAL COMMUNICATION</p>
+    </div>
+    <div class="spread-grid">
+      <div class="sp-card reveal d1"><div class="sp-icon">展</div><h4>数字展馆</h4><p>如本站一般，云端设馆，足不出户便可遍览千年竹韵。</p></div>
+      <div class="sp-card reveal d2"><div class="sp-icon">影</div><h4>影像记录</h4><p>短视频与纪录片让运刀之美被看见、被转发、被喜爱。</p></div>
+      <div class="sp-card reveal d2"><div class="sp-icon">学</div><h4>研学课堂</h4><p>线上课程结合线下工坊，让青少年亲手触摸传统。</p></div>
+      <div class="sp-card reveal d3"><div class="sp-icon">创</div><h4>文创电商</h4><p>竹刻文创触网出海，老手艺成为新国潮。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 情感收尾 -->
+<div class="finale">
+  <img class="bg" src="images/finale-bamboo.jpg" alt="竹林晨光">
+  <div class="inner reveal">
+    <div class="f-big">“让千年竹艺，<br>在数字时代焕发新生。”</div>
+    <a class="f-btn" href="index.html">回 到 首 页</a>
+  </div>
+</div>
+
+<!-- 上下卷导航 -->
+<section style="background:var(--rice);padding-top:60px;">
+  <div class="pagenav reveal">
+    <a class="pn" href="gallery.html"><small>上一卷</small>‹ 竹上丹青 · 竹刻艺术</a>
+    <a class="pn" href="index.html"><small>回到起点</small>竹韵初识 · 首页 ›</a>
+  </div>
+</section>
+
+<footer>
+  <div class="f-title">竹影留青</div>
+  <div class="f-sub">常州留青竹刻数字展馆 · 非遗文化数字体验</div>
+  <div class="f-line"></div>
+  <div class="f-note">第五展馆 · 竹艺新生 ｜ 数字展馆小组出品 · 2026</div>
+</footer>
+
+<script>
+/* ---------- 竹叶飘落 ---------- */
+(function(){
+  const canvas=document.getElementById('leaves'),ctx=canvas.getContext('2d');
+  let W,H;const leaves=[],COUNT=12;
+  function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight;}
+  addEventListener('resize',resize);resize();
+  class Leaf{
+    constructor(i){this.reset(i);}
+    reset(i){this.x=Math.random()*W;this.y=i?Math.random()*H:-40;this.s=9+Math.random()*11;
+      this.v=.45+Math.random()*.75;this.a=Math.random()*6.28;this.sp=(Math.random()-.5)*.018;
+      this.sw=Math.random()*6.28;this.ss=.008+Math.random()*.016;this.o=.14+Math.random()*.22;}
+    up(){this.sw+=this.ss;this.x+=Math.sin(this.sw)*.7+.35;this.y+=this.v;this.a+=this.sp;
+      if(this.y>H+50||this.x>W+50)this.reset(false);}
+    dr(){ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.a);ctx.globalAlpha=this.o;
+      ctx.fillStyle='#4F7459';const s=this.s;ctx.beginPath();ctx.moveTo(0,-s);
+      ctx.quadraticCurveTo(s*.42,0,0,s);ctx.quadraticCurveTo(-s*.42,0,0,-s);ctx.fill();ctx.restore();}
+  }
+  for(let i=0;i<COUNT;i++)leaves.push(new Leaf(true));
+  (function loop(){ctx.clearRect(0,0,W,H);leaves.forEach(l=>{l.up();l.dr();});requestAnimationFrame(loop);})();
+})();
+
+/* ---------- 导航栏 & 显现 ---------- */
+(function(){
+  const nav=document.getElementById('nav');
+  const f=()=>nav.classList.toggle('scrolled',scrollY>60);
+  addEventListener('scroll',f,{passive:true});f();
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}
+  }),{threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+
+/* ---------- 数字文创工坊 ---------- */
+(function(){
+  const NS="http://www.w3.org/2000/svg";
+  const carrierLayer=document.getElementById('carrierLayer');
+  const patLayer=document.getElementById('patLayer');
+  const rName=document.getElementById('rName');
+  const rLine=document.getElementById('rLine');
+
+  const PATS={
+    zhu:{name:"墨竹",word:"虚心有节"},
+    shan:{name:"山水",word:"胸有丘壑"},
+    niao:{name:"花鸟",word:"生机盎然"}
+  };
+  const CARS={
+    bookmark:{name:"书签",word:"伴你翻阅千卷",pat:'translate(180,195) scale(1.0)'},
+    plate:{name:"竹牌",word:"挂起一方清雅",pat:'translate(180,190) rotate(-90) scale(0.78)'},
+    weight:{name:"镇纸",word:"压住浮世喧嚣",pat:'translate(180,192) rotate(-90) scale(0.55)'}
+  };
+  let pat="zhu",car="bookmark";
+
+  function drawCarrier(){
+    carrierLayer.innerHTML="";
+    const g=document.createElementNS(NS,"g");
+    if(car==="bookmark"){
+      g.innerHTML='<rect x="130" y="40" width="100" height="320" rx="14" fill="url(#gCar)" stroke="rgba(74,56,42,.3)"/>'
+        +'<circle cx="180" cy="66" r="7" fill="#b08b52" stroke="rgba(74,56,42,.35)"/>'
+        +'<path d="M180 59 Q176 30 196 18" fill="none" stroke="#A93428" stroke-width="3"/>'
+        +'<path d="M196 18 l-7 -9 M196 18 l0 -11 M196 18 l7 -9" stroke="#A93428" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+    }else if(car==="plate"){
+      g.innerHTML='<rect x="66" y="118" width="228" height="150" rx="16" fill="url(#gCar)" stroke="rgba(74,56,42,.3)"/>'
+        +'<circle cx="112" cy="136" r="6" fill="#b08b52" stroke="rgba(74,56,42,.35)"/>'
+        +'<circle cx="248" cy="136" r="6" fill="#b08b52" stroke="rgba(74,56,42,.35)"/>'
+        +'<path d="M112 136 Q180 62 248 136" fill="none" stroke="#8a6b42" stroke-width="3" stroke-dasharray="2 5"/>';
+    }else{
+      g.innerHTML='<rect x="46" y="152" width="268" height="84" rx="12" fill="url(#gCar)" stroke="rgba(74,56,42,.3)"/>'
+        +'<rect x="46" y="152" width="268" height="84" rx="12" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="4"/>';
+    }
+    carrierLayer.appendChild(g);
+  }
+  function drawPat(){
+    patLayer.innerHTML="";
+    const u=document.createElementNS(NS,"use");
+    u.setAttribute("href","#pat-"+pat);
+    u.setAttribute("transform",CARS[car].pat);
+    patLayer.appendChild(u);
+  }
+  function drawText(){
+    rName.textContent="「"+PATS[pat].name+" × "+CARS[car].name+"」";
+    rLine.textContent=PATS[pat].word+"，"+CARS[car].word+"。";
+  }
+  function render(anim){
+    if(anim){patLayer.style.opacity=0;rName.style.opacity=0;rLine.style.opacity=0;}
+    setTimeout(()=>{
+      drawCarrier();drawPat();drawText();
+      patLayer.style.opacity=1;rName.style.opacity=1;rLine.style.opacity=1;
+    },anim?200:0);
+  }
+  document.getElementById('patBtns').addEventListener('click',e=>{
+    const b=e.target.closest('.opt-btn');if(!b)return;
+    pat=b.dataset.pat;
+    document.querySelectorAll('#patBtns .opt-btn').forEach(x=>x.classList.toggle('on',x===b));
+    render(true);
+  });
+  document.getElementById('carBtns').addEventListener('click',e=>{
+    const b=e.target.closest('.opt-btn');if(!b)return;
+    car=b.dataset.car;
+    document.querySelectorAll('#carBtns .opt-btn').forEach(x=>x.classList.toggle('on',x===b));
+    render(true);
+  });
+  document.getElementById('wsRandom').addEventListener('click',()=>{
+    const ps=Object.keys(PATS),cs=Object.keys(CARS);
+    pat=ps[Math.floor(Math.random()*ps.length)];
+    car=cs[Math.floor(Math.random()*cs.length)];
+    document.querySelectorAll('#patBtns .opt-btn').forEach(x=>x.classList.toggle('on',x.dataset.pat===pat));
+    document.querySelectorAll('#carBtns .opt-btn').forEach(x=>x.classList.toggle('on',x.dataset.car===car));
+    render(true);
+  });
+  render(false);
+})();
+</script>
+</body>
+</html>

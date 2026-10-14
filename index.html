@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>竹影留青 —— 一刀一刻间的千年传承</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;600;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bamboo:#4F7459;
+    --bamboo-deep:#2E4A39;
+    --bamboo-dark:#22382B;
+    --rice:#F5F0E4;
+    --rice-dark:#EAE2CF;
+    --brown:#4A382A;
+    --ink:#2B2824;
+    --seal:#A93428;
+    --gold:#B99A5F;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+    background:var(--rice);
+    color:var(--ink);
+    overflow-x:hidden;
+    line-height:1.9;
+  }
+  ::selection{background:var(--bamboo);color:var(--rice);}
+
+  /* ---------- 飘叶画布 ---------- */
+  #leaves{
+    position:fixed;inset:0;
+    pointer-events:none;
+    z-index:6;
+  }
+
+  /* ---------- 顶部导航 ---------- */
+  nav{
+    position:fixed;top:0;left:0;right:0;
+    z-index:100;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 5vw;
+    transition:all .45s ease;
+  }
+  nav .logo{
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:1.7rem;
+    color:var(--rice);
+    letter-spacing:.15em;
+    text-decoration:none;
+    display:flex;align-items:center;gap:12px;
+    transition:color .45s ease;
+  }
+  nav .logo .seal-mini{
+    width:34px;height:34px;
+    background:var(--seal);
+    color:#fff;
+    font-size:1.05rem;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:4px;
+    transform:rotate(-3deg);
+    box-shadow:0 2px 8px rgba(0,0,0,.25);
+    letter-spacing:0;
+    line-height:1;
+  }
+  nav ul{
+    display:flex;gap:38px;list-style:none;
+  }
+  nav ul a{
+    color:rgba(245,240,228,.88);
+    text-decoration:none;
+    font-size:.95rem;
+    letter-spacing:.25em;
+    position:relative;
+    padding:4px 0;
+    transition:color .45s ease;
+  }
+  nav ul a::after{
+    content:"";
+    position:absolute;left:0;bottom:-2px;
+    width:0;height:1px;
+    background:currentColor;
+    transition:width .35s ease;
+  }
+  nav ul a:hover::after{width:100%;}
+  nav ul a.active{font-weight:600;}
+  nav ul a.active::after{width:100%;}
+  nav.scrolled{
+    background:rgba(245,240,228,.94);
+    backdrop-filter:blur(10px);
+    box-shadow:0 2px 20px rgba(43,40,36,.12);
+    padding:14px 5vw;
+  }
+  nav.scrolled .logo,nav.scrolled ul a{color:var(--brown);}
+
+  /* ---------- 首屏 ---------- */
+  .hero{
+    position:relative;
+    height:100vh;
+    min-height:640px;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+  .hero-bg{
+    position:absolute;inset:-8% 0;
+    width:100%;height:116%;
+    object-fit:cover;
+    will-change:transform;
+    transform:scale(1.06);
+  }
+  .hero::before{
+    content:"";
+    position:absolute;inset:0;
+    background:
+      linear-gradient(180deg,rgba(34,56,43,.55) 0%,rgba(34,56,43,.25) 40%,rgba(43,40,36,.65) 100%);
+    z-index:1;
+  }
+  .hero-content{
+    position:relative;z-index:2;
+    text-align:center;
+    color:var(--rice);
+    padding:0 6vw;
+  }
+  .hero-badge{
+    display:inline-block;
+    border:1px solid rgba(245,240,228,.55);
+    padding:7px 26px;
+    font-size:.82rem;
+    letter-spacing:.45em;
+    text-indent:.45em;
+    margin-bottom:38px;
+    opacity:0;
+    animation:fadeDown 1.2s .3s ease forwards;
+  }
+  .hero-title{
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:clamp(3.6rem,10vw,7.6rem);
+    letter-spacing:.12em;
+    line-height:1.15;
+    text-shadow:0 6px 30px rgba(0,0,0,.45);
+    opacity:0;
+    animation:fadeUp 1.4s .6s ease forwards;
+  }
+  .hero-sub{
+    margin-top:26px;
+    font-size:clamp(1rem,2vw,1.3rem);
+    letter-spacing:.6em;
+    text-indent:.6em;
+    color:rgba(245,240,228,.92);
+    opacity:0;
+    animation:fadeUp 1.4s 1s ease forwards;
+  }
+  .hero-line{
+    width:1px;height:64px;
+    margin:36px auto 0;
+    background:linear-gradient(180deg,rgba(245,240,228,.9),transparent);
+    opacity:0;
+    animation:fadeUp 1.4s 1.4s ease forwards;
+  }
+  .hero-vertical{
+    position:absolute;z-index:2;
+    right:5vw;top:50%;
+    transform:translateY(-50%);
+    writing-mode:vertical-rl;
+    color:rgba(245,240,228,.55);
+    letter-spacing:.9em;
+    font-size:1rem;
+    opacity:0;
+    animation:fadeIn 2s 1.6s ease forwards;
+  }
+  .scroll-hint{
+    position:absolute;z-index:2;
+    bottom:34px;left:50%;
+    transform:translateX(-50%);
+    color:rgba(245,240,228,.8);
+    font-size:.78rem;
+    letter-spacing:.4em;
+    text-indent:.4em;
+    text-align:center;
+    opacity:0;
+    animation:fadeIn 1.6s 2s ease forwards;
+  }
+  .scroll-hint .dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--rice);
+    margin:10px auto 0;
+    animation:drop 1.8s infinite ease-in-out;
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(34px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-24px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes drop{0%{transform:translateY(0);opacity:1;}70%{transform:translateY(16px);opacity:0;}100%{transform:translateY(0);opacity:0;}}
+
+  /* ---------- 通用版式 ---------- */
+  section{padding:110px 8vw;position:relative;}
+  .wrap{max-width:1180px;margin:0 auto;position:relative;z-index:2;}
+  .sec-head{text-align:center;margin-bottom:64px;}
+  .sec-label{
+    color:var(--bamboo);
+    font-size:.85rem;
+    letter-spacing:.5em;
+    text-indent:.5em;
+    margin-bottom:14px;
+  }
+  .sec-title{
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:clamp(2.1rem,4.5vw,3rem);
+    color:var(--brown);
+    letter-spacing:.1em;
+  }
+  .sec-sub{
+    margin-top:12px;
+    color:#8d8171;
+    font-size:.95rem;
+    letter-spacing:.2em;
+  }
+  .on-dark .sec-title{color:var(--rice);}
+  .on-dark .sec-label{color:var(--gold);}
+  .on-dark .sec-sub{color:rgba(245,240,228,.6);}
+
+  /* 滚动显现 */
+  .reveal{opacity:0;transform:translateY(36px);transition:opacity .9s ease,transform .9s ease;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+  .d1{transition-delay:.12s;} .d2{transition-delay:.24s;} .d3{transition-delay:.36s;} .d4{transition-delay:.48s;}
+
+  /* 水墨笔触分隔 */
+  .brush{
+    display:block;
+    margin:0 auto;
+    width:min(420px,70vw);
+    height:26px;
+    opacity:.55;
+  }
+
+  /* ---------- 初识留青 ---------- */
+  #intro{background:var(--rice);}
+  .intro-grid{
+    display:grid;
+    grid-template-columns:1.05fr .95fr;
+    gap:70px;
+    align-items:center;
+  }
+  .intro-text p{
+    margin-bottom:22px;
+    color:#4c463d;
+    text-align:justify;
+    font-size:1.02rem;
+  }
+  .intro-text p b{color:var(--bamboo-deep);font-weight:600;}
+  .intro-quote{
+    border-left:3px solid var(--bamboo);
+    background:rgba(79,116,89,.08);
+    padding:20px 26px;
+    margin-top:30px;
+    color:var(--bamboo-deep);
+    font-size:1.05rem;
+  }
+  .intro-quote small{
+    display:block;
+    margin-top:8px;
+    color:#8d8171;
+    font-size:.8rem;
+    letter-spacing:.15em;
+  }
+  .intro-img{
+    position:relative;
+  }
+  .intro-img::before{
+    content:"";
+    position:absolute;
+    inset:18px -18px -18px 18px;
+    border:1px solid var(--bamboo);
+    opacity:.4;
+    z-index:0;
+  }
+  .intro-img img{
+    position:relative;z-index:1;
+    width:100%;
+    display:block;
+    box-shadow:0 24px 60px rgba(43,40,36,.22);
+    filter:saturate(.92);
+  }
+  .seal-stamp{
+    position:absolute;z-index:2;
+    right:-16px;top:-16px;
+    width:64px;height:64px;
+    background:var(--seal);
+    color:#fff;
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:1.5rem;
+    display:flex;align-items:center;justify-content:center;
+    text-align:center;
+    line-height:1.1;
+    border-radius:6px;
+    transform:rotate(4deg);
+    box-shadow:0 6px 18px rgba(169,52,40,.4);
+    letter-spacing:0;
+  }
+
+  /* ---------- 常州地位 ---------- */
+  #status{
+    background:
+      radial-gradient(1200px 500px at 80% -10%,rgba(185,154,95,.12),transparent 60%),
+      linear-gradient(160deg,var(--bamboo-deep),var(--bamboo-dark));
+    color:var(--rice);
+  }
+  .status-intro{
+    max-width:820px;
+    margin:0 auto 60px;
+    text-align:center;
+    color:rgba(245,240,228,.85);
+    font-size:1.02rem;
+  }
+  .status-cards{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:30px;
+  }
+  .status-card{
+    border:1px solid rgba(245,240,228,.18);
+    background:rgba(245,240,228,.05);
+    padding:44px 32px;
+    text-align:center;
+    transition:all .4s ease;
+    position:relative;
+    overflow:hidden;
+  }
+  .status-card::before{
+    content:"";
+    position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    opacity:0;transition:opacity .4s ease;
+  }
+  .status-card:hover{
+    transform:translateY(-8px);
+    background:rgba(245,240,228,.09);
+    border-color:rgba(185,154,95,.5);
+  }
+  .status-card:hover::before{opacity:1;}
+  .status-card .big{
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:2.4rem;
+    color:var(--gold);
+    letter-spacing:.08em;
+    margin-bottom:14px;
+  }
+  .status-card h3{
+    font-size:1.15rem;
+    letter-spacing:.3em;
+    text-indent:.3em;
+    margin-bottom:14px;
+    font-weight:600;
+  }
+  .status-card p{
+    font-size:.92rem;
+    color:rgba(245,240,228,.7);
+  }
+
+  /* ---------- 代表作品 ---------- */
+  #works{background:var(--rice-dark);}
+  .works-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:26px;
+  }
+  .work-card{
+    background:var(--rice);
+    box-shadow:0 10px 30px rgba(43,40,36,.08);
+    overflow:hidden;
+    transition:all .45s ease;
+    cursor:pointer;
+  }
+  .work-card:hover{
+    transform:translateY(-10px);
+    box-shadow:0 26px 50px rgba(43,40,36,.18);
+  }
+  .work-img{
+    position:relative;
+    aspect-ratio:3/3.6;
+    overflow:hidden;
+  }
+  .work-img img{
+    width:100%;height:100%;
+    object-fit:cover;
+    transition:transform .8s ease;
+    filter:saturate(.9);
+  }
+  .work-card:hover .work-img img{transform:scale(1.08);}
+  .work-img::after{
+    content:"";
+    position:absolute;inset:0;
+    background:linear-gradient(180deg,transparent 55%,rgba(34,56,43,.55));
+    opacity:0;transition:opacity .5s ease;
+  }
+  .work-card:hover .work-img::after{opacity:1;}
+  .work-info{padding:22px 20px 26px;text-align:center;}
+  .work-info h3{
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:1.35rem;
+    color:var(--brown);
+    letter-spacing:.1em;
+    margin-bottom:6px;
+  }
+  .work-info .kind{
+    color:var(--bamboo);
+    font-size:.8rem;
+    letter-spacing:.3em;
+    text-indent:.3em;
+    margin-bottom:10px;
+  }
+  .work-info p{
+    font-size:.85rem;
+    color:#7c7263;
+    line-height:1.7;
+  }
+
+  /* ---------- 展馆导览 ---------- */
+  #guide{background:var(--rice);}
+  .guide-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:20px;
+  }
+  .guide-card{
+    position:relative;
+    display:block;
+    text-decoration:none;
+    border:1px solid rgba(74,56,42,.18);
+    background:#FBF8F0;
+    padding:38px 20px 30px;
+    text-align:center;
+    transition:all .4s ease;
+    overflow:hidden;
+  }
+  .guide-card .num{
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:2.6rem;
+    color:rgba(79,116,89,.3);
+    line-height:1;
+    transition:color .4s ease;
+  }
+  .guide-card h3{
+    margin:16px 0 10px;
+    font-size:1.12rem;
+    color:var(--brown);
+    letter-spacing:.25em;
+    text-indent:.25em;
+    font-weight:600;
+  }
+  .guide-card p{
+    font-size:.8rem;
+    color:#8d8171;
+    line-height:1.7;
+    min-height:44px;
+  }
+  .guide-card .arrow{
+    display:inline-block;
+    margin-top:14px;
+    color:var(--bamboo);
+    font-size:.85rem;
+    letter-spacing:.2em;
+    opacity:0;
+    transform:translateX(-8px);
+    transition:all .4s ease;
+  }
+  .guide-card:hover{
+    transform:translateY(-8px);
+    border-color:var(--bamboo);
+    box-shadow:0 18px 40px rgba(46,74,57,.15);
+  }
+  .guide-card:hover .num{color:var(--bamboo);}
+  .guide-card:hover .arrow{opacity:1;transform:translateX(0);}
+  .guide-card.current{
+    background:var(--bamboo-deep);
+    border-color:var(--bamboo-deep);
+  }
+  .guide-card.current .num{color:rgba(245,240,228,.35);}
+  .guide-card.current h3{color:var(--rice);}
+  .guide-card.current p{color:rgba(245,240,228,.65);}
+  .guide-card.current .tag{
+    position:absolute;top:12px;right:-30px;
+    background:var(--seal);
+    color:#fff;
+    font-size:.68rem;
+    letter-spacing:.15em;
+    padding:3px 34px;
+    transform:rotate(38deg);
+  }
+
+  /* ---------- 页脚 ---------- */
+  footer{
+    background:var(--brown);
+    color:rgba(245,240,228,.75);
+    text-align:center;
+    padding:56px 8vw 40px;
+  }
+  footer .f-title{
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:1.8rem;
+    color:var(--rice);
+    letter-spacing:.2em;
+    margin-bottom:12px;
+  }
+  footer .f-sub{
+    font-size:.85rem;
+    letter-spacing:.3em;
+    margin-bottom:26px;
+  }
+  footer .f-line{
+    width:60px;height:1px;
+    background:rgba(245,240,228,.3);
+    margin:0 auto 26px;
+  }
+  footer .f-note{
+    font-size:.78rem;
+    color:rgba(245,240,228,.45);
+    letter-spacing:.12em;
+  }
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:1024px){
+    .works-grid{grid-template-columns:repeat(2,1fr);}
+    .guide-grid{grid-template-columns:repeat(3,1fr);}
+    .status-cards{grid-template-columns:1fr;max-width:560px;margin:0 auto;}
+  }
+  @media (max-width:720px){
+    nav ul{display:none;}
+    .hero-vertical{display:none;}
+    section{padding:80px 7vw;}
+    .intro-grid{grid-template-columns:1fr;gap:46px;}
+    .works-grid{grid-template-columns:1fr;}
+    .guide-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="leaves"></canvas>
+
+<!-- 导航 -->
+<nav id="nav">
+  <a class="logo" href="index.html"><span class="seal-mini">留<br>青</span>竹影留青</a>
+  <ul>
+    <li><a href="index.html" class="active">首页</a></li>
+    <li><a href="history.html">千年竹史</a></li>
+    <li><a href="craft.html">匠心工艺</a></li>
+    <li><a href="gallery.html">竹刻艺术</a></li>
+    <li><a href="heritage.html">传承新生</a></li>
+  </ul>
+</nav>
+
+<!-- 首屏 -->
+<header class="hero">
+  <img class="hero-bg" id="heroBg"
+    src="images/hero-bamboo.jpg"
+    alt="竹林水墨">
+  <div class="hero-vertical">一刀一刻 · 千年传承</div>
+  <div class="hero-content">
+    <div class="hero-badge">国家级非物质文化遗产 · 常州留青竹刻</div>
+    <h1 class="hero-title">竹影留青</h1>
+    <p class="hero-sub">一 刀 一 刻 间 的 千 年 传 承</p>
+    <div class="hero-line"></div>
+  </div>
+  <div class="scroll-hint">向下滚动 · 步入展馆<div class="dot"></div></div>
+</header>
+
+<!-- 壹 · 初识留青 -->
+<section id="intro">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-label">第 壹 卷</div>
+      <h2 class="sec-title">初识留青</h2>
+      <p class="sec-sub">WHAT IS LIUQING BAMBOO CARVING</p>
+    </div>
+    <div class="intro-grid">
+      <div class="intro-text reveal">
+        <p><b>留青竹刻</b>，是中国竹刻艺术中独树一帜的门类。匠人取竹材表面一层薄如蝉翼的青筠为"纸"，以刀为笔，通过<b>全留、多留、少留、不留</b>的层次变化，刻画山水、花鸟、人物、书法，使图纹呈现出水墨画般的浓淡神韵。</p>
+        <p>新刻之时，青筠微黄，清雅含蓄；随着岁月流转，竹肌渐成琥珀之色，与留青的图纹相映成趣，<b>年愈久而色愈深，意愈远</b>——这方竹面之上，刻下的是技艺，留下的是时光。</p>
+        <div class="intro-quote">
+          “留青者，留其竹青以为纹也。运刀如运笔，方寸之间，自有乾坤。”
+          <small>—— 竹刻艺谚</small>
+        </div>
+      </div>
+      <div class="intro-img reveal d2">
+        <div class="seal-stamp">留青</div>
+        <img src="images/intro-craftsman.jpg" alt="匠人运刀">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 贰 · 常州地位 -->
+<section id="status" class="on-dark">
+  <svg class="brush reveal" viewBox="0 0 420 26" fill="none">
+    <path d="M6 16 C 80 6, 160 22, 240 12 S 380 8, 414 14" stroke="#B99A5F" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+  </svg>
+  <div class="wrap" style="margin-top:50px;">
+    <div class="sec-head reveal">
+      <div class="sec-label">第 贰 卷</div>
+      <h2 class="sec-title">常州留青 · 江南一绝</h2>
+      <p class="sec-sub">THE CULTURAL STATUS OF CHANGZHOU</p>
+    </div>
+    <p class="status-intro reveal d1">
+      常州留青竹刻源远流长，清末民初蔚然兴盛。它将诗、书、画、印融于盈尺竹面，以"以刀代笔、以筠为墨"的绝妙意境，
+      在中国竹刻艺术版图中自成高峰，成为常州这座江南名城最雅致的文化名片。
+    </p>
+    <div class="status-cards">
+      <div class="status-card reveal d1">
+        <div class="big">2008</div>
+        <h3>国家非遗</h3>
+        <p>2008年，常州留青竹刻入选国家级非物质文化遗产代表性项目名录，千年刀笔之美获国家级守护。</p>
+      </div>
+      <div class="status-card reveal d2">
+        <div class="big">以刀代笔</div>
+        <h3>艺术特色</h3>
+        <p>融书画神韵于竹筠之间，青筠去留之间自成浓淡干湿，方寸竹面尽显水墨意境与金石风骨。</p>
+      </div>
+      <div class="status-card reveal d3">
+        <div class="big">薪火相传</div>
+        <h3>名家辈出</h3>
+        <p>徐素白、白士风、徐秉方……一代代常州匠人执刀不辍，让留青之艺绵延不绝、历久弥新。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 叁 · 代表作品 -->
+<section id="works">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-label">第 叁 卷</div>
+      <h2 class="sec-title">代表作品</h2>
+      <p class="sec-sub">MASTERPIECES GALLERY</p>
+    </div>
+    <div class="works-grid">
+      <div class="work-card reveal d1">
+        <div class="work-img">
+          <img src="images/work-xishan.jpg" alt="溪山清远">
+        </div>
+        <div class="work-info">
+          <h3>溪山清远</h3>
+          <div class="kind">留青臂搁 · 山水</div>
+          <p>远山如黛，近水含烟，青筠去留之间尽显江南山水的清远意境。</p>
+        </div>
+      </div>
+      <div class="work-card reveal d2">
+        <div class="work-img">
+          <img src="images/work-songhe.jpg" alt="松鹤延年">
+        </div>
+        <div class="work-info">
+          <h3>松鹤延年</h3>
+          <div class="kind">留青笔筒 · 松鹤</div>
+          <p>苍松虬劲，仙鹤翩然，刀锋流转处寄托延年美好的传统祝愿。</p>
+        </div>
+      </div>
+      <div class="work-card reveal d3">
+        <div class="work-img">
+          <img src="images/work-xishang.jpg" alt="喜上眉梢">
+        </div>
+        <div class="work-info">
+          <h3>喜上眉梢</h3>
+          <div class="kind">留青扇骨 · 花鸟</div>
+          <p>寒梅吐蕊，喜鹊登枝，盈握之间尽得花鸟画的灵动生机。</p>
+        </div>
+      </div>
+      <div class="work-card reveal d4">
+        <div class="work-img">
+          <img src="images/work-gaoshi.jpg" alt="竹林高士">
+        </div>
+        <div class="work-info">
+          <h3>竹林高士</h3>
+          <div class="kind">留青台屏 · 人物</div>
+          <p>高士抚琴，竹影婆娑，一刻一画皆是文人风骨与林下风流。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 肆 · 展馆导览 -->
+<section id="guide">
+  <svg class="brush reveal" viewBox="0 0 420 26" fill="none">
+    <path d="M6 14 C 90 22, 180 6, 260 16 S 380 18, 414 10" stroke="#4F7459" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+  </svg>
+  <div class="wrap" style="margin-top:50px;">
+    <div class="sec-head reveal">
+      <div class="sec-label">展 馆 导 览</div>
+      <h2 class="sec-title">五卷同览 · 各入胜境</h2>
+      <p class="sec-sub">EXHIBITION HALLS NAVIGATION</p>
+    </div>
+    <div class="guide-grid">
+      <a class="guide-card current reveal d1" href="index.html">
+        <span class="tag">当前馆</span>
+        <div class="num">壹</div>
+        <h3>竹韵初识</h3>
+        <p>走进留青竹刻，初识这门千年技艺的缘起与风骨。</p>
+        <span class="arrow">进入 →</span>
+      </a>
+      <a class="guide-card reveal d2" href="history.html">
+        <div class="num">贰</div>
+        <h3>千年竹史</h3>
+        <p>点击历史时间轴，看留青竹刻自唐宋走来的千年足迹。</p>
+        <span class="arrow">进入 →</span>
+      </a>
+      <a class="guide-card reveal d3" href="craft.html">
+        <div class="num">叁</div>
+        <h3>匠心工艺</h3>
+        <p>走进数字刻坊，亲手"刻"完选竹到成品的六道工序。</p>
+        <span class="arrow">进入 →</span>
+      </a>
+      <a class="guide-card reveal d4" href="gallery.html">
+        <div class="num">肆</div>
+        <h3>竹刻艺术</h3>
+        <p>数字展厅细赏珍品，拖动对比读懂"以刀代笔"。</p>
+        <span class="arrow">进入 →</span>
+      </a>
+      <a class="guide-card reveal d4" href="heritage.html">
+        <div class="num">伍</div>
+        <h3>传承新生</h3>
+        <p>设计专属竹刻文创，见证非遗在数字时代的新生。</p>
+        <span class="arrow">进入 →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- 页脚 -->
+<footer>
+  <div class="f-title">竹影留青</div>
+  <div class="f-sub">常州留青竹刻数字展馆 · 非遗文化数字体验</div>
+  <div class="f-line"></div>
+  <div class="f-note">第一展馆 · 竹韵初识 ｜ 数字展馆小组出品 · 2026</div>
+</footer>
+
+<script>
+/* ---------- 竹叶飘落 ---------- */
+(function(){
+  const canvas = document.getElementById('leaves');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  const leaves = [];
+  const COUNT = 14;
+
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  class Leaf{
+    constructor(init){ this.reset(init); }
+    reset(init){
+      this.x = Math.random() * W;
+      this.y = init ? Math.random() * H : -40;
+      this.size = 9 + Math.random() * 11;
+      this.speed = .45 + Math.random() * .75;
+      this.angle = Math.random() * Math.PI * 2;
+      this.spin = (Math.random() - .5) * .018;
+      this.sway = Math.random() * Math.PI * 2;
+      this.swaySpeed = .008 + Math.random() * .016;
+      this.alpha = .14 + Math.random() * .22;
+    }
+    update(){
+      this.sway += this.swaySpeed;
+      this.x += Math.sin(this.sway) * .7 + .35;
+      this.y += this.speed;
+      this.angle += this.spin;
+      if(this.y > H + 50 || this.x > W + 50) this.reset(false);
+    }
+    draw(){
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.angle);
+      ctx.globalAlpha = this.alpha;
+      ctx.fillStyle = '#4F7459';
+      const s = this.size;
+      ctx.beginPath();
+      ctx.moveTo(0, -s);
+      ctx.quadraticCurveTo(s * .42, 0, 0, s);
+      ctx.quadraticCurveTo(-s * .42, 0, 0, -s);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  for(let i = 0; i < COUNT; i++) leaves.push(new Leaf(true));
+
+  (function loop(){
+    ctx.clearRect(0, 0, W, H);
+    leaves.forEach(l => { l.update(); l.draw(); });
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* ---------- 导航栏滚动变色 ---------- */
+(function(){
+  const nav = document.getElementById('nav');
+  function onScroll(){
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+})();
+
+/* ---------- 首屏视差 ---------- */
+(function(){
+  const bg = document.getElementById('heroBg');
+  window.addEventListener('scroll', function(){
+    const y = window.scrollY;
+    if(y < window.innerHeight){
+      bg.style.transform = 'translateY(' + y * .32 + 'px) scale(1.06)';
+    }
+  }, {passive:true});
+})();
+
+/* ---------- 滚动显现动画 ---------- */
+(function(){
+  const io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, {threshold:.15});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>

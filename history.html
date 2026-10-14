@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>竹刻千年 · 留青竹刻的历史 — 竹影留青</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;600;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bamboo:#4F7459;
+    --bamboo-deep:#2E4A39;
+    --bamboo-dark:#22382B;
+    --rice:#F5F0E4;
+    --rice-dark:#EAE2CF;
+    --brown:#4A382A;
+    --ink:#2B2824;
+    --seal:#A93428;
+    --gold:#B99A5F;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+    background:var(--rice);
+    color:var(--ink);
+    overflow-x:hidden;
+    line-height:1.9;
+  }
+  ::selection{background:var(--bamboo);color:var(--rice);}
+  #leaves{position:fixed;inset:0;pointer-events:none;z-index:6;}
+
+  /* ---------- 导航 ---------- */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 5vw;transition:all .45s ease;
+  }
+  nav .logo{
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:1.7rem;color:var(--rice);letter-spacing:.15em;
+    text-decoration:none;display:flex;align-items:center;gap:12px;
+    transition:color .45s ease;
+  }
+  nav .logo .seal-mini{
+    width:34px;height:34px;background:var(--seal);color:#fff;
+    font-size:1.05rem;display:flex;align-items:center;justify-content:center;
+    border-radius:4px;transform:rotate(-3deg);
+    box-shadow:0 2px 8px rgba(0,0,0,.25);line-height:1;
+  }
+  nav ul{display:flex;gap:38px;list-style:none;}
+  nav ul a{
+    color:rgba(245,240,228,.88);text-decoration:none;font-size:.95rem;
+    letter-spacing:.25em;position:relative;padding:4px 0;transition:color .45s ease;
+  }
+  nav ul a::after{
+    content:"";position:absolute;left:0;bottom:-2px;width:0;height:1px;
+    background:currentColor;transition:width .35s ease;
+  }
+  nav ul a:hover::after{width:100%;}
+  nav ul a.active{font-weight:600;}
+  nav ul a.active::after{width:100%;}
+  nav.scrolled{
+    background:rgba(245,240,228,.94);backdrop-filter:blur(10px);
+    box-shadow:0 2px 20px rgba(43,40,36,.12);padding:14px 5vw;
+  }
+  nav.scrolled .logo,nav.scrolled ul a{color:var(--brown);}
+
+  /* ---------- 页首 ---------- */
+  .page-hero{
+    position:relative;height:56vh;min-height:420px;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+  }
+  .page-hero img.bg{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  }
+  .page-hero::before{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(34,56,43,.6),rgba(34,56,43,.35) 50%,rgba(43,40,36,.7));
+  }
+  .page-hero .inner{position:relative;z-index:2;text-align:center;color:var(--rice);padding:0 6vw;}
+  .page-hero .badge{
+    display:inline-block;border:1px solid rgba(245,240,228,.55);
+    padding:6px 22px;font-size:.8rem;letter-spacing:.45em;text-indent:.45em;
+    margin-bottom:24px;
+  }
+  .page-hero h1{
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:clamp(2.8rem,7vw,5rem);letter-spacing:.15em;
+    text-shadow:0 6px 30px rgba(0,0,0,.45);
+  }
+  .page-hero .sub{
+    margin-top:14px;letter-spacing:.5em;text-indent:.5em;
+    color:rgba(245,240,228,.85);font-size:clamp(.9rem,1.6vw,1.1rem);
+  }
+
+  /* ---------- 通用 ---------- */
+  section{padding:100px 8vw;position:relative;}
+  .wrap{max-width:1180px;margin:0 auto;position:relative;z-index:2;}
+  .sec-head{text-align:center;margin-bottom:60px;}
+  .sec-label{color:var(--bamboo);font-size:.85rem;letter-spacing:.5em;text-indent:.5em;margin-bottom:14px;}
+  .sec-title{
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:clamp(2rem,4.5vw,2.8rem);color:var(--brown);letter-spacing:.1em;
+  }
+  .sec-sub{margin-top:12px;color:#8d8171;font-size:.95rem;letter-spacing:.2em;}
+  .reveal{opacity:0;transform:translateY(36px);transition:opacity .9s ease,transform .9s ease;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+  .d1{transition-delay:.12s;} .d2{transition-delay:.24s;} .d3{transition-delay:.36s;}
+
+  /* ---------- 概览 ---------- */
+  #overview{background:var(--rice);}
+  .ov-text{max-width:860px;margin:0 auto;}
+  .ov-text p{margin-bottom:20px;color:#4c463d;text-align:justify;font-size:1.02rem;}
+  .ov-text p b{color:var(--bamboo-deep);font-weight:600;}
+  .ov-quote{
+    text-align:center;margin-top:44px;
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:clamp(1.4rem,3vw,1.9rem);color:var(--bamboo-deep);letter-spacing:.2em;
+  }
+
+  /* ---------- 时间轴 ---------- */
+  #timeline{background:var(--rice-dark);}
+  .t-track{
+    position:relative;display:flex;justify-content:space-between;
+    max-width:1000px;margin:0 auto 56px;padding:0 10px;
+  }
+  .t-track::before{
+    content:"";position:absolute;left:0;right:0;top:17px;height:2px;
+    background:linear-gradient(90deg,rgba(79,116,89,.15),var(--bamboo),rgba(79,116,89,.15));
+  }
+  .t-node{
+    position:relative;z-index:1;background:none;border:none;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+    font-family:inherit;padding:0 6px;
+  }
+  .t-node .dot{
+    width:36px;height:36px;border-radius:50%;
+    background:var(--rice-dark);border:2px solid var(--bamboo);
+    display:flex;align-items:center;justify-content:center;
+    transition:all .4s ease;
+  }
+  .t-node .dot::after{
+    content:"";width:10px;height:10px;border-radius:50%;
+    background:var(--bamboo);transition:all .4s ease;
+  }
+  .t-node .era{
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:1.25rem;color:var(--brown);letter-spacing:.08em;transition:color .3s;
+  }
+  .t-node .yr{font-size:.72rem;color:#9a8f7d;letter-spacing:.1em;}
+  .t-node:hover .dot{transform:scale(1.15);box-shadow:0 0 0 6px rgba(79,116,89,.15);}
+  .t-node.on .dot{background:var(--bamboo-deep);border-color:var(--bamboo-deep);transform:scale(1.18);}
+  .t-node.on .dot::after{background:var(--gold);}
+  .t-node.on .era{color:var(--bamboo-deep);}
+
+  .t-detail{
+    max-width:1000px;margin:0 auto;
+    background:var(--rice);
+    box-shadow:0 18px 50px rgba(43,40,36,.12);
+    display:grid;grid-template-columns:1fr 1fr;
+    overflow:hidden;
+  }
+  .t-detail-inner{display:contents;transition:opacity .3s ease,transform .3s ease;}
+  .t-detail.fading .t-detail-inner{opacity:0;transform:translateY(12px);}
+  .t-img{position:relative;min-height:320px;}
+  .t-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.92);}
+  .t-body{padding:44px 42px;display:flex;flex-direction:column;justify-content:center;}
+  .t-body .t-era-tag{
+    color:var(--bamboo);font-size:.8rem;letter-spacing:.4em;margin-bottom:10px;
+  }
+  .t-body h3{
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:1.7rem;color:var(--brown);letter-spacing:.08em;margin-bottom:16px;
+  }
+  .t-body p{color:#4c463d;font-size:.95rem;text-align:justify;margin-bottom:18px;}
+  .t-points{display:flex;flex-wrap:wrap;gap:10px;}
+  .t-points span{
+    border:1px solid rgba(79,116,89,.4);color:var(--bamboo-deep);
+    font-size:.78rem;letter-spacing:.08em;padding:4px 14px;border-radius:20px;
+  }
+  .t-ctrl{
+    max-width:1000px;margin:26px auto 0;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .t-btn{
+    background:none;border:1px solid rgba(74,56,42,.3);color:var(--brown);
+    font-family:inherit;font-size:.85rem;letter-spacing:.2em;
+    padding:10px 24px;cursor:pointer;transition:all .3s ease;
+  }
+  .t-btn:hover{background:var(--bamboo-deep);border-color:var(--bamboo-deep);color:var(--rice);}
+  .t-hint{font-size:.78rem;color:#9a8f7d;letter-spacing:.15em;}
+
+  /* ---------- 上下卷 ---------- */
+  .pagenav{
+    display:flex;justify-content:space-between;gap:20px;
+    max-width:1000px;margin:0 auto;
+  }
+  .pn{
+    flex:1;text-align:center;text-decoration:none;
+    border:1px solid rgba(74,56,42,.25);color:var(--brown);
+    padding:20px 16px;font-size:.95rem;letter-spacing:.2em;
+    transition:all .35s ease;background:#FBF8F0;
+  }
+  .pn:hover{background:var(--bamboo-deep);border-color:var(--bamboo-deep);color:var(--rice);}
+  .pn small{display:block;font-size:.72rem;letter-spacing:.3em;color:#9a8f7d;margin-bottom:6px;transition:color .35s;}
+  .pn:hover small{color:rgba(245,240,228,.7);}
+
+  /* ---------- 页脚 ---------- */
+  footer{background:var(--brown);color:rgba(245,240,228,.75);text-align:center;padding:56px 8vw 40px;}
+  footer .f-title{
+    font-family:"Ma Shan Zheng","STKaiti","KaiTi",serif;
+    font-size:1.8rem;color:var(--rice);letter-spacing:.2em;margin-bottom:12px;
+  }
+  footer .f-sub{font-size:.85rem;letter-spacing:.3em;margin-bottom:26px;}
+  footer .f-line{width:60px;height:1px;background:rgba(245,240,228,.3);margin:0 auto 26px;}
+  footer .f-note{font-size:.78rem;color:rgba(245,240,228,.45);letter-spacing:.12em;}
+
+  @media (max-width:860px){
+    nav ul{display:none;}
+    section{padding:80px 7vw;}
+    .t-detail{grid-template-columns:1fr;}
+    .t-img{min-height:230px;}
+    .t-node .era{font-size:1rem;}
+    .t-node .yr{display:none;}
+    .pagenav{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="leaves"></canvas>
+
+<nav id="nav">
+  <a class="logo" href="index.html"><span class="seal-mini">留<br>青</span>竹影留青</a>
+  <ul>
+    <li><a href="index.html">首页</a></li>
+    <li><a href="history.html" class="active">千年竹史</a></li>
+    <li><a href="craft.html">匠心工艺</a></li>
+    <li><a href="gallery.html">竹刻艺术</a></li>
+    <li><a href="heritage.html">传承新生</a></li>
+  </ul>
+</nav>
+
+<header class="page-hero">
+  <img class="bg" src="images/history-hero.jpg" alt="竹刻文物">
+  <div class="inner">
+    <div class="badge">第 贰 卷</div>
+    <h1>竹刻千年</h1>
+    <p class="sub">留 青 竹 刻 的 历 史 长 河</p>
+  </div>
+</header>
+
+<!-- 概览 -->
+<section id="overview">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-label">史 海 钩 沉</div>
+      <h2 class="sec-title">一筠一世界，千年一刻刀</h2>
+      <p class="sec-sub">OVERVIEW OF A MILLENNIUM</p>
+    </div>
+    <div class="ov-text reveal d1">
+      <p>中国竹刻艺术源远流长。竹，虚心有节、四季常青，自古便是文人品格的象征；以刀刻竹，更是将<b>自然之材</b>与<b>人文之心</b>熔铸一炉。在竹刻诸技法中，<b>留青</b>一脉最为清雅——它保留竹面一层青筠为图，以去留分浓淡，以岁月养颜色。</p>
+      <p>从唐代的早期实物，到明末张希黄技法大成；从近现代徐素白、白士风的双星辉映，到当代徐秉方的承古开今；再到2008年入选国家级非物质文化遗产名录——<b>常州留青竹刻</b>的千年长卷，徐徐展开如下。</p>
+    </div>
+    <div class="ov-quote reveal d2">“一部留青史，半卷江南文。”</div>
+  </div>
+</section>
+
+<!-- 交互时间轴 -->
+<section id="timeline">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-label">点 击 探 索</div>
+      <h2 class="sec-title">历史时间轴</h2>
+      <p class="sec-sub">CLICK THE TIMELINE · 点击任一时期，展开它的故事</p>
+    </div>
+
+    <div class="t-track reveal d1" id="tTrack"></div>
+
+    <div class="t-detail reveal d2" id="tDetail">
+      <div class="t-detail-inner">
+        <div class="t-img"><img id="tImg" src="" alt="历史时期"></div>
+        <div class="t-body">
+          <div class="t-era-tag" id="tTag"></div>
+          <h3 id="tTitle"></h3>
+          <p id="tText"></p>
+          <div class="t-points" id="tPoints"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-ctrl reveal d3">
+      <button class="t-btn" id="tPrev">‹ 上一时期</button>
+      <span class="t-hint">亦可点击上方时间节点切换</span>
+      <button class="t-btn" id="tNext">下一时期 ›</button>
+    </div>
+  </div>
+</section>
+
+<!-- 上下卷导航 -->
+<section style="background:var(--rice);padding-top:70px;">
+  <div class="pagenav reveal">
+    <a class="pn" href="index.html"><small>上一卷</small>‹ 竹韵初识 · 首页</a>
+    <a class="pn" href="craft.html"><small>下一卷</small>以刀代笔 · 匠心工艺 ›</a>
+  </div>
+</section>
+
+<footer>
+  <div class="f-title">竹影留青</div>
+  <div class="f-sub">常州留青竹刻数字展馆 · 非遗文化数字体验</div>
+  <div class="f-line"></div>
+  <div class="f-note">第二展馆 · 竹刻千年 ｜ 数字展馆小组出品 · 2026</div>
+</footer>
+
+<script>
+/* ---------- 竹叶飘落 ---------- */
+(function(){
+  const canvas=document.getElementById('leaves'),ctx=canvas.getContext('2d');
+  let W,H;const leaves=[],COUNT=12;
+  function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight;}
+  addEventListener('resize',resize);resize();
+  class Leaf{
+    constructor(i){this.reset(i);}
+    reset(i){this.x=Math.random()*W;this.y=i?Math.random()*H:-40;this.s=9+Math.random()*11;
+      this.v=.45+Math.random()*.75;this.a=Math.random()*6.28;this.sp=(Math.random()-.5)*.018;
+      this.sw=Math.random()*6.28;this.ss=.008+Math.random()*.016;this.o=.14+Math.random()*.22;}
+    up(){this.sw+=this.ss;this.x+=Math.sin(this.sw)*.7+.35;this.y+=this.v;this.a+=this.sp;
+      if(this.y>H+50||this.x>W+50)this.reset(false);}
+    dr(){ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.a);ctx.globalAlpha=this.o;
+      ctx.fillStyle='#4F7459';const s=this.s;ctx.beginPath();ctx.moveTo(0,-s);
+      ctx.quadraticCurveTo(s*.42,0,0,s);ctx.quadraticCurveTo(-s*.42,0,0,-s);ctx.fill();ctx.restore();}
+  }
+  for(let i=0;i<COUNT;i++)leaves.push(new Leaf(true));
+  (function loop(){ctx.clearRect(0,0,W,H);leaves.forEach(l=>{l.up();l.dr();});requestAnimationFrame(loop);})();
+})();
+
+/* ---------- 导航栏 ---------- */
+(function(){
+  const nav=document.getElementById('nav');
+  const f=()=>nav.classList.toggle('scrolled',scrollY>60);
+  addEventListener('scroll',f,{passive:true});f();
+})();
+
+/* ---------- 滚动显现 ---------- */
+(function(){
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}
+  }),{threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+
+/* ---------- 时间轴数据与交互 ---------- */
+const DATA=[
+  {
+    era:"唐 代",yr:"公元7—10世纪",title:"源流初现 · 竹刻之滥觞",
+    img:"images/history-tang.jpg",
+    text:"中国竹刻艺术源远流长，唐代已见在竹器上施刻之工艺。传世实物中，日本正仓院所藏唐代竹刻尺八，以竹青为地、留筠成纹，人物花鸟宛然生动，被后世视为留青技法之滥觞。一管竹、一柄刀，自此结下千年之缘。",
+    points:["正仓院藏 · 唐竹刻尺八","留筠成纹的早期实物"]
+  },
+  {
+    era:"明 末",yr:"公元17世纪",title:"张希黄 · 留青技法大成",
+    img:"images/history-ming.jpg",
+    text:"明末清初，竹刻名家张希黄精研留青之法：以青筠多留为浓、少留为淡，于方寸竹面分出山水的远近明暗，世称“留青圣手”。其《山水楼阁图笔筒》等传世之作，确立了留青竹刻的艺术范式，影响延及今日。",
+    points:["张希黄 · 留青圣手","《山水楼阁图笔筒》传世"]
+  },
+  {
+    era:"近现代",yr:"20世纪",title:"双星辉映 · 常州崛起",
+    img:"images/history-modern.jpg",
+    text:"近现代以来，留青竹刻的艺术重心汇聚江南常州。徐素白博采书画之长，作品清雅秀润、自成一格；白士风刀法精妙、题材广阔，获评中国工艺美术大师。双星辉映，“常州留青”由此名扬海内外。",
+    points:["徐素白 · 清雅秀润","白士风 · 中国工艺美术大师"]
+  },
+  {
+    era:"当 代",yr:"21世纪",title:"徐秉方 · 承古开今",
+    img:"images/master-xubingfang.jpg",
+    text:"徐素白之子徐秉方，承家学而开新境，获评中国工艺美术大师，并成为国家级非物质文化遗产代表性传承人。从家学相传到师徒相授，从案头清供到国家殿堂，留青刀笔在当代续写新章。",
+    points:["徐秉方 · 国家级代表性传承人","家学三代 · 薪火不息"]
+  },
+  {
+    era:"2008",yr:"2008年6月",title:"国家名录 · 千年技艺的春天",
+    img:"images/history-2008.jpg",
+    text:"2008年，“竹刻（常州留青竹刻）”入选第二批国家级非物质文化遗产名录。千年技艺获得国家层面的系统性保护与传承支持，常州留青竹刻迎来了属于它的春天。",
+    points:["第二批国家级非遗名录","传统美术 · 常州留青竹刻"]
+  }
+];
+
+(function(){
+  const track=document.getElementById('tTrack');
+  const detail=document.getElementById('tDetail');
+  const img=document.getElementById('tImg');
+  const tag=document.getElementById('tTag');
+  const title=document.getElementById('tTitle');
+  const text=document.getElementById('tText');
+  const pts=document.getElementById('tPoints');
+  let cur=-1;
+
+  DATA.forEach((d,i)=>{
+    const b=document.createElement('button');
+    b.className='t-node';
+    b.innerHTML='<span class="dot"></span><span class="era">'+d.era+'</span><span class="yr">'+d.yr+'</span>';
+    b.addEventListener('click',()=>go(i));
+    track.appendChild(b);
+  });
+  const nodes=track.querySelectorAll('.t-node');
+
+  function render(i){
+    const d=DATA[i];
+    img.src=d.img;img.alt=d.title;
+    tag.textContent=d.era+' · '+d.yr;
+    title.textContent=d.title;
+    text.textContent=d.text;
+    pts.innerHTML=d.points.map(p=>'<span>'+p+'</span>').join('');
+    nodes.forEach((n,k)=>n.classList.toggle('on',k===i));
+  }
+  function go(i){
+    i=(i+DATA.length)%DATA.length;
+    if(i===cur)return;
+    if(cur===-1){cur=i;render(i);return;}
+    detail.classList.add('fading');
+    setTimeout(()=>{cur=i;render(i);detail.classList.remove('fading');},300);
+  }
+  document.getElementById('tPrev').addEventListener('click',()=>go(cur-1));
+  document.getElementById('tNext').addEventListener('click',()=>go(cur+1));
+  go(1); /* 默认展示明末·张希黄 */
+})();
+</script>
+</body>
+</html>

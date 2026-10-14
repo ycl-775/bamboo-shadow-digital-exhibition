@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>留青竹刻 · 互动体验平台</title>
+<style>
+  :root{
+    --bg:#f7f5f0; --text:#2b2b2b; --accent:#5a7c3e; --accent2:#8b5a2b;
+    --card:#fff; --shadow:rgba(0,0,0,.08); --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  html,body{-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+  button,.pill{touch-action:manipulation}
+  header{position:sticky;top:0;z-index:100;background:linear-gradient(90deg,#2e3b28,#4a5d3e);color:#fff;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+  header h1{margin:0;font-size:1.25rem;letter-spacing:2px}
+  .online{font-size:.85rem;display:flex;align-items:center;gap:8px}
+  .online .avatars{display:flex}
+  .online .ava{width:24px;height:24px;border-radius:50%;border:2px solid #fff;margin-left:-8px;font-size:12px;line-height:20px;text-align:center;color:#fff;background:#888}
+  .online .ava:first-child{margin-left:0}
+
+  .hero{position:relative;padding:72px 24px 56px;text-align:center;color:#fff;
+    background:linear-gradient(180deg,rgba(46,59,40,.7),rgba(46,59,40,.35)),
+    url('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=A+serene+bamboo+forest+in+misty+mountains%2C+traditional+Chinese+ink+painting+style%2C+soft+green+tones%2C+horizontal+composition%2C+highly+detailed&image_size=landscape_16_9') center/cover no-repeat}
+  .hero h2{font-size:2.3rem;margin:0 0 12px;letter-spacing:4px;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+  .hero p{font-size:1.05rem;max-width:680px;margin:0 auto;opacity:.95}
+
+  .section{max-width:1100px;margin:0 auto;padding:48px 24px}
+  .section h3{font-size:1.6rem;margin-bottom:24px;color:var(--accent2);border-left:5px solid var(--accent);padding-left:12px}
+
+  .simulator-wrap{background:linear-gradient(180deg,#fff,#f3efe6);border-radius:var(--radius);padding:24px;box-shadow:0 8px 30px rgba(0,0,0,.08)}
+  .sim-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+  .sim-header h4{margin:0;font-size:1.3rem;color:var(--accent2)}
+  .sim-progress{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{padding:6px 12px;border-radius:999px;background:#e8e8e8;font-size:.85rem;color:#666;cursor:pointer;transition:.3s;user-select:none}
+  .pill.done{background:var(--accent);color:#fff}
+  .pill.active{background:var(--accent2);color:#fff}
+  .pill.locked{opacity:.5;cursor:not-allowed}
+
+  .workbench{display:flex;gap:20px;flex-wrap:wrap}
+  .stage-col{flex:1;min-width:300px}
+  .stage{position:relative;width:100%;aspect-ratio:800/420;border-radius:12px;overflow:hidden;border:2px solid #d6ccb3;background:#e8dec3;user-select:none;touch-action:none}
+  .stage canvas{position:absolute;inset:0;width:100%;height:100%}
+  .sheen{position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);transform:translateX(-100%)}
+  .sheen.play{opacity:1;animation:sheenSweep 1.8s ease-in-out}
+  @keyframes sheenSweep{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+  .finish-badge{position:absolute;top:12px;right:12px;background:rgba(90,60,20,.85);color:#ffe9b0;padding:8px 14px;border-radius:10px;font-size:.9rem;letter-spacing:2px;opacity:0;transition:opacity .6s;pointer-events:none}
+  .finish-badge.show{opacity:1}
+  .danmaku-layer{position:absolute;inset:0;pointer-events:none;z-index:30;overflow:hidden}
+  .dm{position:absolute;white-space:nowrap;font-size:.9rem;color:rgba(255,255,255,.95);text-shadow:0 1px 3px rgba(0,0,0,.6);animation:dmSlide 9s linear forwards}
+  @keyframes dmSlide{from{transform:translateX(110%)}to{transform:translateX(-120%)}}
+
+  .bamboo-picker{position:absolute;inset:0;z-index:25;background:rgba(30,40,25,.55);display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;padding:16px;backdrop-filter:blur(2px)}
+  .picker-title{width:100%;text-align:center;color:#fff;font-size:1.05rem;letter-spacing:2px;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+  .bamboo-opt{background:#fff;border-radius:14px;padding:14px;width:180px;cursor:pointer;text-align:center;transition:transform .15s,box-shadow .15s;border:3px solid transparent}
+  .bamboo-opt:hover{transform:translateY(-4px)}
+  .bamboo-opt.picked{border-color:var(--accent);box-shadow:0 8px 20px rgba(90,124,62,.35)}
+  .bamboo-opt .swatch{height:70px;border-radius:8px;margin-bottom:10px}
+  .bamboo-opt h5{margin:0 0 4px;font-size:1rem}
+  .bamboo-opt p{margin:0;font-size:.78rem;color:#777}
+  .bamboo-opt .tag{display:inline-block;margin-top:6px;font-size:.72rem;padding:2px 8px;border-radius:999px;background:#eee;color:#888}
+  .bamboo-opt .tag.rec{background:#e3efd6;color:#4a6830}
+  .end-card{background:#fff;border-radius:16px;padding:28px 24px;width:min(320px,86%);text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+  .end-card h3{margin:0 0 8px;color:var(--accent2);font-size:1.3rem;letter-spacing:2px}
+  .end-card p{margin:0 0 16px;color:#666;font-size:.92rem}
+  .end-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+  .narration{width:300px;flex-shrink:0;background:#2e3b28;color:#eef3e6;border-radius:12px;padding:18px;display:flex;flex-direction:column;max-height:480px}
+  .narration h5{margin:0 0 6px;font-size:1.05rem;color:#cfe0b8;display:flex;justify-content:space-between;align-items:center}
+  .narration .step-no{font-size:.75rem;opacity:.7}
+  .nar-body{flex:1;overflow-y:auto;font-size:.9rem;line-height:1.7}
+  .nar-body p{margin:0 0 10px}
+  .nar-body .hint{color:#ffd98a}
+  .nar-bar{height:6px;background:rgba(255,255,255,.15);border-radius:3px;margin-top:12px;overflow:hidden}
+  .nar-bar i{display:block;height:100%;width:0;background:#9ab65a;border-radius:3px;transition:width .3s}
+  .nar-tool{display:flex;gap:8px;margin-top:12px;align-items:center;font-size:.8rem;flex-wrap:wrap}
+  .nar-tool button{background:rgba(255,255,255,.12);border:none;color:#fff;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:.8rem;transition:background .2s}
+  .nar-tool button:hover{background:rgba(255,255,255,.22)}
+  .nar-tool .btn-primary{background:#7da84f;font-size:.9rem;padding:8px 18px;border-radius:999px}
+  .nar-tool .btn-primary:hover{background:#6a933f}
+  .nar-tool .btn-primary:disabled{background:rgba(255,255,255,.12);opacity:.5;cursor:not-allowed}
+
+  .controls{display:flex;gap:10px;margin-top:16px;align-items:center;height:44px}
+  .controls .spacer{flex:1}
+  .btn{border:none;padding:10px 18px;border-radius:999px;font-size:.95rem;cursor:pointer;background:#e0e0e0;color:#444;transition:.2s;font-family:inherit;white-space:nowrap}
+  .btn:hover{background:#d4d4d4}
+  .btn.primary{background:var(--accent);color:#fff}
+  .btn.primary:hover{background:#4a6830}
+  .btn.accent{background:var(--accent2);color:#fff}
+  .btn.accent:hover{background:#6e4520}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.hidden-keep{visibility:hidden}
+
+  .chat{margin-top:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .chat input{flex:1;min-width:180px;padding:10px 14px;border-radius:999px;border:1px solid #ccc;font-size:.95rem}
+  .presence-panel{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:0 4px 16px var(--shadow);margin-top:16px}
+  .presence-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .p-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#f0f0f0;font-size:.85rem}
+  .p-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  .toast-wrap{position:fixed;top:72px;right:16px;z-index:200;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+  .toast{background:rgba(46,59,40,.92);color:#fff;padding:10px 14px;border-radius:10px;font-size:.9rem;box-shadow:0 4px 12px rgba(0,0,0,.2);animation:toastIn .3s ease}
+  @keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+  .footer{text-align:center;padding:24px;color:#999;font-size:.85rem}
+  @media (max-width:860px){
+    header{padding:10px 14px}
+    header h1{font-size:1.05rem;letter-spacing:1px}
+    .hero{padding:44px 16px 36px}
+    .hero h2{font-size:1.55rem;letter-spacing:2px}
+    .hero p{font-size:.92rem}
+    .section{padding:28px 14px}
+    .section h3{font-size:1.3rem}
+    .simulator-wrap{padding:14px}
+    .sim-header h4{font-size:1.1rem}
+    .pill{padding:5px 10px;font-size:.78rem}
+    .workbench{flex-direction:column;gap:14px}
+    .narration{width:100%;max-height:none}
+    .controls{flex-wrap:wrap;height:auto;min-height:44px;row-gap:8px}
+    .controls .spacer{display:none}
+    .btn{padding:9px 14px;font-size:.9rem}
+    .bamboo-opt{width:46%;min-width:148px;padding:10px}
+    .bamboo-opt .swatch{height:54px}
+    .chat{gap:6px}
+    .chat input{min-width:110px;padding:9px 12px;font-size:16px}
+    .presence-panel{padding:12px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>留青竹刻 · 互动体验</h1>
+  <div class="online">
+    <span>在线 <strong id="onlineCount">1</strong> 人</span>
+    <div class="avatars" id="onlineAvatars"></div>
+  </div>
+</header>
+
+<section class="hero">
+  <h2>留青竹刻 · 匠心独运</h2>
+  <p>亲手执刀，边做边学。从选竹到成品，完整体验留青竹刻的六道工序，多人同屏切磋。手机、电脑均可操作。</p>
+</section>
+
+<section class="section" id="simulator">
+  <h3>竹刻工坊 · 亲手雕刻</h3>
+  <div class="simulator-wrap">
+    <div class="sim-header">
+      <h4>工作台</h4>
+      <div class="sim-progress" id="simProgress">
+        <div class="pill" data-step="0">选竹</div>
+        <div class="pill" data-step="1">整形</div>
+        <div class="pill" data-step="2">描图</div>
+        <div class="pill" data-step="3">切边</div>
+        <div class="pill" data-step="4">铲底</div>
+        <div class="pill" data-step="5">成品</div>
+      </div>
+    </div>
+
+    <div class="workbench">
+      <div class="stage-col">
+        <div class="stage" id="stage">
+          <canvas id="cBase" width="800" height="420"></canvas>
+          <canvas id="cGreen" width="800" height="420"></canvas>
+          <canvas id="cPattern" width="800" height="420"></canvas>
+          <canvas id="cCut" width="800" height="420"></canvas>
+          <canvas id="cUI" width="800" height="420"></canvas>
+          <div class="sheen" id="sheen"></div>
+          <div class="finish-badge" id="finishBadge">留青竹刻 · 完工</div>
+          <div class="bamboo-picker" id="bambooPicker">
+            <div class="bamboo-opt" data-bamboo="0">
+              <div class="swatch" style="background:linear-gradient(135deg,#a9c46a,#8fb454)"></div>
+              <h5>两年生嫩竹</h5><p>竹青鲜嫩，色淡质软</p><span class="tag">太嫩 · 易起毛</span>
+            </div>
+            <div class="bamboo-opt" data-bamboo="1">
+              <div class="swatch" style="background:linear-gradient(135deg,#7c9c3c,#6a8a2e)"></div>
+              <h5>四年生毛竹</h5><p>青筠致密，色泽匀净</p><span class="tag rec">推荐 · 上品</span>
+            </div>
+            <div class="bamboo-opt" data-bamboo="2">
+              <div class="swatch" style="background:linear-gradient(135deg,#5d7a34,#4d6527)"></div>
+              <h5>八年生老竹</h5><p>竹青厚硬，色深多斑</p><span class="tag">太老 · 难下刀</span>
+            </div>
+          </div>
+          <div class="bamboo-picker" id="scrapePicker" style="display:none">
+            <div class="picker-title">选择铲底方式</div>
+            <div class="bamboo-opt scrape-opt" data-mode="outside">
+              <div class="swatch" style="background:radial-gradient(circle at 50% 50%,#7c9c3c 0 40%,#efe6cc 42%)"></div>
+              <h5>铲图案外</h5><p>图案留住竹青，背景露出竹肌</p><span class="tag rec">传统 · 留青</span>
+            </div>
+            <div class="bamboo-opt scrape-opt" data-mode="inside">
+              <div class="swatch" style="background:radial-gradient(circle at 50% 50%,#efe6cc 0 40%,#7c9c3c 42%)"></div>
+              <h5>铲图案内</h5><p>图案内露出竹肌，背景留青反衬</p><span class="tag">反衬 · 别致</span>
+            </div>
+            <div class="bamboo-opt scrape-opt" data-mode="all">
+              <div class="swatch" style="background:linear-gradient(135deg,#efe6cc,#e2d5b2)"></div>
+              <h5>全部铲掉</h5><p>整面竹青铲去，只留刀痕轮廓</p><span class="tag">挑战 · 极简</span>
+            </div>
+          </div>
+          <div class="bamboo-picker" id="endPanel" style="display:none">
+            <div class="end-card">
+              <h3>作品已完成</h3>
+              <p>本次创作到此结束。你的留青竹刻已完工，可重新选竹开启新作品。</p>
+              <div class="end-actions">
+                <button class="btn primary" id="btnEndRestart">重新选竹</button>
+                <button class="btn" id="btnEndClose">继续欣赏</button>
+              </div>
+            </div>
+          </div>
+          <div class="danmaku-layer" id="danmakuLayer"></div>
+        </div>
+        <div class="controls">
+          <button class="btn" id="btnPrev">上一步</button>
+          <button class="btn" id="btnRedo">重做本步</button>
+          <button class="btn accent hidden-keep" id="btnUndo">撤销一笔</button>
+          <button class="btn accent hidden-keep" id="btnFinishDraw">完成描图</button>
+          <button class="btn accent hidden-keep" id="btnFinishCut">完成切边</button>
+          <button class="btn primary hidden-keep" id="btnRestartAll">重新选竹</button>
+          <button class="btn accent hidden-keep" id="btnEndDraw">结束绘画</button>
+          <span class="spacer"></span>
+        </div>
+      </div>
+
+      <div class="narration">
+        <h5><span id="narTitle">讲解</span><span class="step-no" id="narStepNo"></span></h5>
+        <div class="nar-body" id="narBody"></div>
+        <div class="nar-bar"><i id="narBarFill"></i></div>
+        <div class="nar-tool">
+          <button id="btnVoice">🔊 语音讲解：开</button>
+          <span id="narPct" style="margin-left:auto;opacity:.8"></span>
+          <button class="btn-primary" id="btnNext" disabled>下一步</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat">
+      <input id="nickInput" placeholder="输入昵称参与互动" maxlength="12" />
+      <input id="msgInput" placeholder="发送弹幕/留言…" maxlength="60" />
+      <button class="btn primary" onclick="sendMsg()">发送</button>
+    </div>
+
+    <div class="presence-panel">
+      <strong>协作伙伴</strong>
+      <div class="presence-list" id="presenceList">
+        <div class="p-chip"><span class="dot"></span><span id="myNick">我</span></div>
+      </div>
+      <p style="font-size:.8rem;color:#888;margin:8px 0 0">提示：在同一浏览器多开几个标签页，即可体验真实的跨标签协作互动。</p>
+    </div>
+  </div>
+</section>
+
+<div class="toast-wrap" id="toastWrap"></div>
+<div class="footer">留青竹刻互动体验平台 · 文化传承</div>
+
+<script>
+(() => {
+  const W = 800, H = 420;
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const cBase = $('#cBase'), cGreen = $('#cGreen'), cPattern = $('#cPattern'),
+        cCut = $('#cCut'), cUI = $('#cUI');
+  const xBase = cBase.getContext('2d'), xGreen = cGreen.getContext('2d'),
+        xPattern = cPattern.getContext('2d'), xCut = cCut.getContext('2d'),
+        xUI = cUI.getContext('2d');
+
+  const PALETTES = [
+    { green1:'#a9c46a', green2:'#8fb454', flesh1:'#f6efdc', flesh2:'#efe4c8', name:'两年生嫩竹' },
+    { green1:'#7c9c3c', green2:'#6a8a2e', flesh1:'#efe6cc', flesh2:'#e2d5b2', name:'四年生毛竹' },
+    { green1:'#5d7a34', green2:'#4d6527', flesh1:'#e0d2ac', flesh2:'#d0bf94', name:'八年生老竹' }
+  ];
+
+  const STEPS = ['选竹','整形','描图','切边','铲底','成品'];
+  const INK_TARGET = 500;
+  const CUT_TARGET = 600;
+
+  const state = {
+    step: 0, maxReached: 0,
+    done: [false,false,false,false,false,false],
+    bamboo: null,
+    nodes: [],
+    inkLen: 0,
+    inkStrokes: [],
+    curInk: null,
+    cutLen: 0,
+    cutStrokes: [],
+    curCut: null,
+    scrapeMode: null,
+    maskData: null,
+    maskCanvas: null,
+    greenCache: null,
+    warnedInside: false
+  };
+  let lastInk = null;
+  let inkHintShown = false;
+  let cutHintShown = false;
+
+  function drawFlesh() {
+    const p = PALETTES[state.bamboo ?? 1];
+    const g = xBase.createLinearGradient(0,0,W,0);
+    g.addColorStop(0,p.flesh2); g.addColorStop(.5,p.flesh1); g.addColorStop(1,p.flesh2);
+    xBase.fillStyle = g; xBase.fillRect(0,0,W,H);
+    for (let x = 8; x < W; x += 7 + Math.random()*10) {
+      xBase.strokeStyle = `rgba(150,125,80,${0.05+Math.random()*0.09})`;
+      xBase.lineWidth = 1 + Math.random()*1.5;
+      xBase.beginPath(); xBase.moveTo(x,0);
+      xBase.bezierCurveTo(x+6,H*.3, x-6,H*.7, x+4,H);
+      xBase.stroke();
+    }
+  }
+
+  function makeNodes() {
+    const nodes = [];
+    for (let i = 0; i < 9; i++) {
+      nodes.push({ x: 60+Math.random()*(W-120), y: 40+Math.random()*(H-80),
+                   rx: 16+Math.random()*22, ry: 8+Math.random()*12, gone:false });
+    }
+    [110, 300].forEach(y => {
+      for (let x = 40; x < W-40; x += 74) {
+        nodes.push({ x, y, rx: 42, ry: 7, gone:false });
+      }
+    });
+    return nodes;
+  }
+
+  function drawGreen() {
+    const p = PALETTES[state.bamboo ?? 1];
+    xGreen.globalCompositeOperation = 'source-over';
+    const g = xGreen.createLinearGradient(0,0,W,0);
+    g.addColorStop(0,p.green2); g.addColorStop(.5,p.green1); g.addColorStop(1,p.green2);
+    xGreen.clearRect(0,0,W,H);
+    xGreen.fillStyle = g; xGreen.fillRect(0,0,W,H);
+    for (let x = 4; x < W; x += 9 + Math.random()*12) {
+      xGreen.strokeStyle = `rgba(40,60,20,${0.04+Math.random()*0.06})`;
+      xGreen.lineWidth = 1;
+      xGreen.beginPath(); xGreen.moveTo(x,0); xGreen.lineTo(x+4,H); xGreen.stroke();
+    }
+    state.nodes.forEach(n => {
+      if (n.gone) return;
+      xGreen.save();
+      xGreen.fillStyle = 'rgba(60,75,30,.55)';
+      xGreen.beginPath(); xGreen.ellipse(n.x,n.y,n.rx,n.ry,0,0,Math.PI*2); xGreen.fill();
+      xGreen.strokeStyle = 'rgba(35,45,18,.6)'; xGreen.lineWidth = 1.5;
+      xGreen.stroke(); xGreen.restore();
+    });
+    state.greenCache = null;
+  }
+
+  function strokeLen(st) {
+    let L = 0;
+    for (let i = 1; i < st.length; i++) L += Math.hypot(st[i].x-st[i-1].x, st[i].y-st[i-1].y);
+    return L;
+  }
+
+  function strokeInk(pts) {
+    xPattern.lineCap = 'round'; xPattern.lineJoin = 'round';
+    xPattern.strokeStyle = 'rgba(40,40,40,.85)'; xPattern.lineWidth = 3.5;
+    xPattern.beginPath(); xPattern.moveTo(pts[0].x, pts[0].y);
+    pts.forEach(p => xPattern.lineTo(p.x, p.y)); xPattern.stroke();
+  }
+
+  function drawInkAll() {
+    xPattern.clearRect(0,0,W,H);
+    xPattern.lineCap = 'round'; xPattern.lineJoin = 'round';
+    xPattern.strokeStyle = 'rgba(40,40,40,.85)'; xPattern.lineWidth = 3.5;
+    xPattern.fillStyle = 'rgba(40,40,40,.85)';
+    state.inkStrokes.forEach(st => {
+      if (st.length < 2) {
+        xPattern.beginPath(); xPattern.arc(st[0].x, st[0].y, 1.75, 0, Math.PI*2); xPattern.fill();
+        return;
+      }
+      xPattern.beginPath(); xPattern.moveTo(st[0].x, st[0].y);
+      st.forEach(p => xPattern.lineTo(p.x, p.y));
+      xPattern.stroke();
+    });
+  }
+
+  function strokeCut(pts) {
+    xCut.lineCap = 'round'; xCut.lineJoin = 'round';
+    xCut.strokeStyle = 'rgba(0,0,0,.25)'; xCut.lineWidth = 8;
+    xCut.beginPath(); xCut.moveTo(pts[0].x, pts[0].y+1.5);
+    pts.forEach(p => xCut.lineTo(p.x, p.y+1.5)); xCut.stroke();
+    xCut.strokeStyle = '#3e2b1a'; xCut.lineWidth = 4;
+    xCut.beginPath(); xCut.moveTo(pts[0].x, pts[0].y);
+    pts.forEach(p => xCut.lineTo(p.x, p.y)); xCut.stroke();
+  }
+
+  function drawCutAll() {
+    xCut.clearRect(0,0,W,H);
+    state.cutStrokes.forEach(st => { if (st.length >= 2) strokeCut(st); });
+  }
+
+  /* ---------- 讲解 ---------- */
+  let voiceOn = true;
+  function narrate(title, paras, pct) {
+    $('#narTitle').textContent = title;
+    $('#narStepNo').textContent = `第 ${state.step+1} / 6 步`;
+    $('#narBody').innerHTML = paras.map(p =>
+      p.startsWith('!') ? `<p class="hint">${p.slice(1)}</p>` : `<p>${p}</p>`).join('');
+    if (pct !== undefined) setPct(pct);
+    if (voiceOn && 'speechSynthesis' in window) {
+      speechSynthesis.cancel();
+      const plain = paras.map(p => p.startsWith('!') ? p.slice(1) : p).join('。');
+      const u = new SpeechSynthesisUtterance(plain);
+      u.lang = 'zh-CN'; u.rate = 1.05;
+      speechSynthesis.speak(u);
+    }
+  }
+  function setPct(p) {
+    $('#narBarFill').style.width = (p*100).toFixed(0) + '%';
+    $('#narPct').textContent = (p*100).toFixed(0) + '%';
+  }
+  $('#btnVoice').onclick = () => {
+    voiceOn = !voiceOn;
+    $('#btnVoice').textContent = voiceOn ? '🔊 语音讲解：开' : '🔇 语音讲解：关';
+    if (!voiceOn) speechSynthesis.cancel();
+  };
+
+  const pills = $$('#simProgress .pill');
+
+  function refreshPills() {
+    pills.forEach((p,i) => {
+      p.classList.toggle('done', state.done[i]);
+      p.classList.toggle('active', i === state.step);
+      p.classList.toggle('locked', i > state.maxReached);
+    });
+    $('#btnPrev').disabled = state.step === 0;
+    $('#btnNext').disabled = !state.done[state.step] || state.step === 5;
+    $('#btnUndo').classList.toggle('hidden-keep', !(state.step === 2 || state.step === 3));
+    $('#btnFinishDraw').classList.toggle('hidden-keep', state.step !== 2);
+    $('#btnFinishCut').classList.toggle('hidden-keep', state.step !== 3);
+    const finished = state.step === 5 && state.done[5];
+    $('#btnRestartAll').classList.toggle('hidden-keep', !finished);
+    $('#btnEndDraw').classList.toggle('hidden-keep', !finished);
+  }
+
+  const NARR = {
+    0: () => narrate('选竹', [
+      '留青竹刻，竹材是根本。竹龄决定竹青的品质：太嫩则青软易损，雕刻时容易起毛；太老则青厚色暗，难以表现细腻层次。',
+      '三五年生的毛竹，竹青致密、色泽匀净、硬度适中，是留青雕刻的上品之选。',
+      '!请在竹片上挑选一块竹材，开始你的作品。'
+    ], 0),
+    1: () => narrate('整形', [
+      `你选择了${PALETTES[state.bamboo ?? 1].name}。竹材表面还有凸起的竹节与疤结，直接下刀会崩刀、断线。`,
+      '传统做法要截段、去节、刮青、火烤校直，让竹面平整如镜。',
+      '!按住（手指或鼠标）在竹面上拖动，把所有深色的竹节和疤结刮平。'
+    ], 0),
+    2: () => narrate('描图', [
+      '竹面已平整。现在你就是画稿的主人——提笔在竹青上直接起稿。',
+      '可以画一丛竹叶、一枝梅花，或任何你喜欢的图样。线条宜闭合，方便下一步切边。',
+      '!按住拖动自由作画，画错可点「撤销一笔」，满意后点「完成描图」。'
+    ], 0),
+    3: () => narrate('切边', [
+      '画稿已成。接下来操斜口刀，沿你自己画的线条运刀，刀锋切透竹青、直抵竹肌。',
+      '下刀要稳、要连贯。你刻出的轮廓，就是下一步铲底的边界——图案内外的分界全由你定。',
+      '!沿画稿运刀，刻错可点「撤销一笔」，满意后点「完成切边」。'
+    ], 0),
+    4: () => narrate('铲底', [
+      '轮廓已切好，进入关键一步——铲底。',
+      '你可以选择三种铲法：铲图案外（传统留青）、铲图案内（反衬效果），或全部铲掉（挑战模式）。',
+      '!请在竹面上点选铲底方式。'
+    ], 0),
+    5: () => narrate('成品', [
+      '最后打磨光洁，薄施蜂蜡。青筠凝翠、竹肌含光，一件留青竹刻就此完工。',
+      '从你亲手画的稿、亲手切的边、亲手铲的底——这件作品独一无二。',
+      '!恭喜完成！可以把作品分享给工坊里的伙伴，或回到任意步骤再练一次。'
+    ], 1)
+  };
+
+  const MODE_NARR = {
+    outside: () => narrate('铲底', [
+      '传统留青：用平口铲刀铲去图案以外的竹青，图案以内的竹青完整保留。',
+      '青底之上，你的图案如翠玉般浮起——这正是「留青」二字的由来。',
+      '!按住拖动，铲掉图案以外的绿色竹青；图案以内铲不到。'
+    ], 0),
+    inside: () => narrate('铲底', [
+      '反衬效果：铲去图案轮廓以内的竹青，露出浅黄竹肌；图案以外的竹青保留。',
+      '青底反衬出浅色图案，别有一番雅致。',
+      '!按住拖动，铲掉图案以内的绿色竹青；图案以外铲不到。'
+    ], 0),
+    all: () => narrate('铲底', [
+      '挑战模式：整面竹青全部铲去，只留下你的刀痕与图案轮廓。',
+      '此法最见刀功，一铲到底，痛快淋漓。',
+      '!按住拖动，铲掉所有绿色竹青。'
+    ], 0)
+  };
+
+  function gotoStep(n) {
+    if (n < 0 || n > 5) return;
+    if (n > state.maxReached) return;
+    state.step = n;
+    if (n === 1 && state.nodes.length === 0) { state.nodes = makeNodes(); drawGreen(); }
+    if (n === 4) {
+      state.greenCache = null;
+      xUI.clearRect(0,0,W,H);
+      if (!state.scrapeMode) $('#scrapePicker').style.display = 'flex';
+      else if (!state.maskData) buildMask();
+    }
+    cPattern.style.visibility = (n >= 4) ? 'hidden' : 'visible';
+    if (n === 5) { finishArtwork(); }
+    if (n < 5) { $('#sheen').classList.remove('play'); $('#finishBadge').classList.remove('show'); }
+    NARR[n]();
+    refreshPills();
+    broadcast({ type:'progress', step:n, nick:myNick });
+  }
+
+  /* ----- 0 选竹 ----- */
+  $$('#bambooPicker .bamboo-opt').forEach(el => {
+    el.onclick = () => {
+      $$('#bambooPicker .bamboo-opt').forEach(o => o.classList.remove('picked'));
+      el.classList.add('picked');
+      state.bamboo = +el.dataset.bamboo;
+      drawFlesh(); drawGreen();
+      setTimeout(() => { $('#bambooPicker').style.display = 'none'; }, 350);
+      state.done[0] = true; state.maxReached = Math.max(state.maxReached, 1);
+      narrate('选竹', [
+        `你选了「${PALETTES[state.bamboo].name}」。` +
+        (state.bamboo === 1 ? '好眼力！四年生毛竹竹青致密均匀，正是留青上品。' :
+         state.bamboo === 0 ? '嫩竹色淡质软，雕刻时需格外轻柔，易起毛，考验刀功。' :
+         '老竹青硬色深，下刀费力，但底子沉稳，别有一番苍劲。'),
+        '!竹材已备，点击右侧「下一步」开始整形。'
+      ], 1);
+      refreshPills();
+    };
+  });
+
+  /* ----- 4 铲底方式选择 ----- */
+  $$('.scrape-opt').forEach(el => {
+    el.onclick = () => {
+      state.scrapeMode = el.dataset.mode;
+      state.warnedInside = false;
+      $('#scrapePicker').style.display = 'none';
+      buildMask();
+      setPct(0);
+      MODE_NARR[state.scrapeMode]();
+    };
+  });
+
+  /* ----- 1 整形 ----- */
+  function shapeAt(x, y) {
+    let changed = false;
+    state.nodes.forEach(n => {
+      if (n.gone) return;
+      const dx = (x - n.x) / (n.rx + 26), dy = (y - n.y) / (n.ry + 26);
+      if (dx*dx + dy*dy <= 1) { n.gone = true; changed = true; }
+    });
+    if (changed) {
+      drawGreen();
+      const left = state.nodes.filter(n => !n.gone).length;
+      const p = 1 - left / state.nodes.length;
+      setPct(p);
+      if (left === 0) {
+        state.done[1] = true; state.maxReached = Math.max(state.maxReached, 2);
+        narrate('整形', ['竹面已平整如镜，不见一处疤结。好竹面是好运刀的前提。','!点击「下一步」，提笔描图。'], 1);
+        refreshPills();
+      }
+    }
+  }
+
+  /* ----- 2 描图：自由作画 + 撤销 ----- */
+  function inkAt(x, y, first) {
+    if (first) {
+      state.curInk = [{x,y}];
+      state.inkStrokes.push(state.curInk);
+      lastInk = {x,y};
+      return;
+    }
+    if (!state.curInk || !lastInk) return;
+    const d = Math.hypot(x-lastInk.x, y-lastInk.y);
+    if (d < 2) return;
+    state.curInk.push({x,y});
+    strokeInk([lastInk, {x,y}]);
+    state.inkLen += d;
+    lastInk = {x,y};
+    setPct(Math.min(1, state.inkLen / INK_TARGET));
+    if (state.inkLen >= INK_TARGET && !state.done[2] && !inkHintShown) {
+      inkHintShown = true;
+      narrate('描图', ['笔墨已足。可继续描绘（画错点「撤销一笔」），满意后点下方「完成描图」。'], 1);
+    }
+  }
+  $('#btnFinishDraw').onclick = () => {
+    if (state.inkLen < INK_TARGET) {
+      showToast('笔墨太少，再多画几笔');
+      return;
+    }
+    state.done[2] = true; state.maxReached = Math.max(state.maxReached, 3);
+    narrate('描图', ['画稿已成——这是你自己笔下生出的图样。','!点击「下一步」，拿起刻刀沿稿切边。'], 1);
+    refreshPills();
+  };
+
+  /* ----- 3 切边：自由运刀 + 撤销 ----- */
+  function cutAt(x, y, first) {
+    if (first) {
+      state.curCut = [{x,y}];
+      state.cutStrokes.push(state.curCut);
+      return;
+    }
+    if (!state.curCut) return;
+    const last = state.curCut[state.curCut.length-1];
+    const d = Math.hypot(x-last.x, y-last.y);
+    if (d < 2) return;
+    state.curCut.push({x,y});
+    state.cutLen += d;
+    strokeCut([last, {x,y}]);
+    setPct(Math.min(1, state.cutLen / CUT_TARGET));
+    if (state.cutLen >= CUT_TARGET && !state.done[3] && !cutHintShown) {
+      cutHintShown = true;
+      narrate('切边', ['刻痕已足够长。可继续补刀（刻错点「撤销一笔」），满意后点下方「完成切边」。'], 1);
+    }
+  }
+  $('#btnFinishCut').onclick = () => {
+    if (state.cutLen < CUT_TARGET) {
+      showToast('刻痕太短，请沿画稿多刻一段');
+      return;
+    }
+    state.done[3] = true; state.maxReached = Math.max(state.maxReached, 4);
+    narrate('切边', ['轮廓已切定。这道刻痕将成为铲底的边界。','!点击「下一步」，开始铲底。'], 1);
+    refreshPills();
+  };
+
+  /* ----- 撤销一笔 ----- */
+  function undoInk() {
+    if (!state.inkStrokes.length) { showToast('没有可撤销的笔画'); return; }
+    state.inkStrokes.pop();
+    state.curInk = null; lastInk = null;
+    state.inkLen = state.inkStrokes.reduce((s,st) => s + strokeLen(st), 0);
+    drawInkAll();
+    setPct(Math.min(1, state.inkLen / INK_TARGET));
+    if (state.done[2] && state.inkLen < INK_TARGET) state.done[2] = false;
+    refreshPills();
+  }
+  function undoCut() {
+    if (!state.cutStrokes.length) { showToast('没有可撤销的刀痕'); return; }
+    state.cutStrokes.pop();
+    state.curCut = null;
+    state.cutLen = state.cutStrokes.reduce((s,st) => s + strokeLen(st), 0);
+    drawCutAll();
+    state.maskData = null; state.maskCanvas = null;
+    setPct(Math.min(1, state.cutLen / CUT_TARGET));
+    if (state.done[3] && state.cutLen < CUT_TARGET) state.done[3] = false;
+    refreshPills();
+  }
+  $('#btnUndo').onclick = () => {
+    if (state.step === 2) undoInk();
+    else if (state.step === 3) undoCut();
+  };
+
+  /* ----- 4 铲底：三种模式 ----- */
+  let scratch = null, sctx = null;
+  function getScratch() {
+    if (!scratch) {
+      scratch = document.createElement('canvas'); scratch.width = W; scratch.height = H;
+      sctx = scratch.getContext('2d');
+    }
+    return scratch;
+  }
+  function buildMask() {
+    const m = document.createElement('canvas'); m.width = W; m.height = H;
+    const mx = m.getContext('2d');
+    mx.fillStyle = '#000'; mx.strokeStyle = '#000';
+    const fillShapes = () => {
+      state.cutStrokes.forEach(st => {
+        if (st.length >= 3) {
+          mx.beginPath();
+          mx.moveTo(st[0].x, st[0].y);
+          st.forEach(p => mx.lineTo(p.x, p.y));
+          mx.closePath(); mx.fill();
+        }
+      });
+    };
+    const strokeShapes = () => {
+      mx.lineWidth = 14; mx.lineCap = 'round'; mx.lineJoin = 'round';
+      state.cutStrokes.forEach(st => {
+        if (st.length >= 2) {
+          mx.beginPath();
+          mx.moveTo(st[0].x, st[0].y);
+          st.forEach(p => mx.lineTo(p.x, p.y));
+          mx.stroke();
+        }
+      });
+    };
+    if (state.scrapeMode === 'all') {
+      mx.fillRect(0, 0, W, H);
+    } else if (state.scrapeMode === 'outside') {
+      mx.fillRect(0, 0, W, H);
+      mx.globalCompositeOperation = 'destination-out';
+      fillShapes(); strokeShapes();
+      mx.globalCompositeOperation = 'source-over';
+    } else {
+      fillShapes(); strokeShapes();
+    }
+    state.maskCanvas = m;
+    state.maskData = mx.getImageData(0,0,W,H);
+  }
+  function canScrape(x, y) {
+    x = Math.max(0, Math.min(W-1, Math.round(x)));
+    y = Math.max(0, Math.min(H-1, Math.round(y)));
+    const i = (y*W + x) * 4;
+    return state.maskData.data[i+3] > 128;
+  }
+  function scrapeAt(x, y) {
+    if (!state.scrapeMode) return;
+    if (!state.maskData) buildMask();
+    if (state.scrapeMode !== 'all' && !canScrape(x, y)) {
+      if (!state.warnedInside) {
+        state.warnedInside = true;
+        showToast(state.scrapeMode === 'outside' ? '图案以内要留住竹青，请铲图案以外' : '图案以外要留住竹青，请铲图案以内');
+      }
+      return;
+    }
+    getScratch();
+    sctx.globalCompositeOperation = 'source-over';
+    sctx.clearRect(0,0,W,H);
+    sctx.beginPath(); sctx.arc(x, y, 26, 0, Math.PI*2); sctx.fill();
+    sctx.globalCompositeOperation = 'destination-in';
+    sctx.drawImage(state.maskCanvas, 0, 0);
+    xGreen.globalCompositeOperation = 'destination-out';
+    xGreen.drawImage(scratch, 0, 0);
+    xGreen.globalCompositeOperation = 'source-over';
+    state.greenCache = null;
+  }
+  function scrapeProgress() {
+    if (!state.scrapeMode) return;
+    if (!state.maskData) buildMask();
+    if (!state.greenCache) state.greenCache = xGreen.getImageData(0,0,W,H);
+    const g = state.greenCache.data, mk = state.maskData.data;
+    let total = 0, gone = 0;
+    for (let y = 0; y < H; y += 8) for (let x = 0; x < W; x += 8) {
+      const i = (y*W + x) * 4;
+      if (mk[i+3] <= 128) continue;
+      total++;
+      if (g[i+3] < 60) gone++;
+    }
+    const p = total ? gone/total : 0;
+    setPct(p);
+    if (p >= 0.85 && !state.done[4]) {
+      getScratch();
+      sctx.globalCompositeOperation = 'source-over';
+      sctx.clearRect(0,0,W,H);
+      sctx.fillStyle = '#000'; sctx.fillRect(0,0,W,H);
+      sctx.globalCompositeOperation = 'destination-in';
+      sctx.drawImage(state.maskCanvas, 0, 0);
+      xGreen.globalCompositeOperation = 'destination-out';
+      xGreen.drawImage(scratch, 0, 0);
+      xGreen.globalCompositeOperation = 'source-over';
+      state.greenCache = null;
+      state.done[4] = true; state.maxReached = Math.max(state.maxReached, 5);
+      narrate('铲底', ['竹青铲净，竹肌显露——青与肌的对比出来了！','!点击「下一步」，打磨上蜡，见证成品。'], 1);
+      refreshPills();
+    }
+  }
+
+  /* ----- 5 成品 ----- */
+  function finishArtwork() {
+    xUI.save();
+    xUI.globalCompositeOperation = 'multiply';
+    xUI.fillStyle = 'rgba(190,150,90,.25)';
+    xUI.fillRect(0,0,W,H);
+    xUI.restore();
+    xUI.strokeStyle = '#5a3c1e'; xUI.lineWidth = 10;
+    xUI.strokeRect(5,5,W-10,H-10);
+    xUI.strokeStyle = '#c8a05a'; xUI.lineWidth = 2;
+    xUI.strokeRect(12,12,W-24,H-24);
+    const sheen = $('#sheen');
+    sheen.classList.remove('play'); void sheen.offsetWidth; sheen.classList.add('play');
+    $('#finishBadge').classList.add('show');
+    state.done[5] = true;
+    refreshPills();
+  }
+
+  /* ----- 重做：清空本步及之后所有工序的痕迹 ----- */
+  function resetFrom(n) {
+    for (let i = n; i < 6; i++) state.done[i] = false;
+    if (n <= 0) { $('#bambooPicker').style.display = 'flex'; }
+    if (n <= 1) { state.nodes = makeNodes(); }
+    if (n <= 2) { xPattern.clearRect(0,0,W,H); state.inkStrokes = []; state.curInk = null; lastInk = null; state.inkLen = 0; inkHintShown = false; }
+    if (n <= 3) { xCut.clearRect(0,0,W,H); state.cutStrokes = []; state.curCut = null; state.cutLen = 0; cutHintShown = false; }
+    if (n <= 4) {
+      state.maskData = null; state.maskCanvas = null; state.warnedInside = false;
+      state.scrapeMode = null;
+      $('#scrapePicker').style.display = (state.step === 4) ? 'flex' : 'none';
+    }
+    xUI.clearRect(0,0,W,H);
+    cPattern.style.visibility = 'visible';
+    $('#sheen').classList.remove('play');
+    $('#finishBadge').classList.remove('show');
+    drawGreen();
+    state.maxReached = n;
+  }
+
+  /* ----- 指针交互（鼠标 + 触屏通用） ----- */
+  let drawing = false;
+  function toXY(e) {
+    const r = cUI.getBoundingClientRect();
+    return { x: (e.clientX - r.left) * (W / r.width), y: (e.clientY - r.top) * (H / r.height) };
+  }
+  const stage = $('#stage');
+  stage.addEventListener('pointerdown', e => {
+    if (e.target !== cUI) return;
+    drawing = true;
+    const {x, y} = toXY(e);
+    handleDab(x, y, true);
+  });
+  stage.addEventListener('pointermove', e => {
+    const {x, y} = toXY(e);
+    drawCursor(x, y);
+    if (!drawing) return;
+    handleDab(x, y, false);
+  });
+  window.addEventListener('pointerup', () => {
+    if (drawing && state.step === 4 && !state.done[4]) scrapeProgress();
+    drawing = false;
+  });
+  window.addEventListener('pointercancel', () => { drawing = false; });
+
+  function handleDab(x, y, first) {
+    if (state.step === 1) shapeAt(x, y);
+    else if (state.step === 2 && !state.done[2]) inkAt(x, y, first);
+    else if (state.step === 3 && !state.done[3]) cutAt(x, y, first);
+    else if (state.step === 4 && !state.done[4]) scrapeAt(x, y);
+  }
+
+  function drawCursor(x, y) {
+    if (state.done[state.step]) return;
+    if (state.step !== 2 && state.step !== 3 && state.step !== 4) return;
+    xUI.clearRect(0,0,W,H);
+    xUI.save();
+    xUI.strokeStyle = state.step === 4 ? 'rgba(255,255,255,.9)' : 'rgba(62,43,26,.9)';
+    xUI.lineWidth = 1.5;
+    const r = state.step === 4 ? 26 : state.step === 2 ? 6 : 8;
+    xUI.beginPath(); xUI.arc(x, y, r, 0, Math.PI*2); xUI.stroke();
+    xUI.restore();
+  }
+
+  /* ----- 上一步 / 下一步 / 重做 ----- */
+  $('#btnPrev').onclick = () => gotoStep(state.step - 1);
+  $('#btnNext').onclick = () => { if (state.done[state.step]) gotoStep(state.step + 1); };
+  $('#btnRedo').onclick = () => {
+    const s = state.step;
+    if (s === 5) {
+      xUI.clearRect(0,0,W,H);
+      $('#sheen').classList.remove('play');
+      $('#finishBadge').classList.remove('show');
+      state.done[5] = false;
+      gotoStep(4);
+      return;
+    }
+    resetFrom(s);
+    setPct(0);
+    NARR[s]();
+    refreshPills();
+  };
+  pills.forEach((p,i) => p.onclick = () => { if (i <= state.maxReached) gotoStep(i); });
+
+  /* ----- 结束绘画 / 重新选竹 ----- */
+  function restartAll() {
+    $('#endPanel').style.display = 'none';
+    resetFrom(0);
+    gotoStep(0);
+  }
+  $('#btnRestartAll').onclick = restartAll;
+  $('#btnEndRestart').onclick = restartAll;
+  $('#btnEndDraw').onclick = () => {
+    $('#endPanel').style.display = 'flex';
+    broadcast({ type:'chat', nick:myNick, text:'完成了留青竹刻作品！' });
+  };
+  $('#btnEndClose').onclick = () => { $('#endPanel').style.display = 'none'; };
+
+  /* ----- 多人协作（BroadcastChannel） ----- */
+  let myNick = localStorage.getItem('bamboo_nick') || '访客' + Math.floor(Math.random()*9000+1000);
+  $('#nickInput').value = myNick; $('#myNick').textContent = myNick;
+  const myColor = ['#5a7c3e','#8b5a2b','#b85c38','#3a6e8c','#7c5a8b','#c49a2c','#2e8b74'][Math.floor(Math.random()*7)];
+  const channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('bamboo_carving_room') : null;
+  const peers = new Map();
+
+  function broadcast(obj) {
+    if (!channel) return;
+    obj.from = myNick; obj.ts = Date.now();
+    channel.postMessage(obj);
+  }
+  $('#nickInput').addEventListener('change', e => {
+    myNick = e.target.value.trim() || myNick;
+    localStorage.setItem('bamboo_nick', myNick);
+    $('#myNick').textContent = myNick;
+    broadcast({ type:'hello', nick:myNick, color:myColor });
+  });
+
+  function showToast(text) {
+    const t = document.createElement('div');
+    t.className = 'toast'; t.textContent = text;
+    $('#toastWrap').appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  }
+  function spawnDanmaku(text) {
+    const el = document.createElement('div');
+    el.className = 'dm'; el.textContent = text;
+    el.style.top = Math.floor(20 + Math.random()*300) + 'px';
+    el.style.animationDuration = (7 + Math.random()*5) + 's';
+    $('#danmakuLayer').appendChild(el);
+    setTimeout(() => el.remove(), 13000);
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+  function renderPeers() {
+    const now = Date.now();
+    const list = $('#presenceList');
+    let html = `<div class="p-chip"><span class="dot" style="background:${myColor}"></span><span>${escapeHtml(myNick)}（我）</span></div>`;
+    let count = 1;
+    const avas = [`<span class="ava" style="background:${myColor}">${escapeHtml(myNick.slice(0,1))}</span>`];
+    for (const [nick, info] of peers) {
+      if (now - info.last > 15000) { peers.delete(nick); continue; }
+      count++;
+      html += `<div class="p-chip"><span class="dot" style="background:${info.color||'#999'}"></span><span>${escapeHtml(nick)}</span></div>`;
+      avas.push(`<span class="ava" style="background:${info.color||'#888'}">${escapeHtml(nick.slice(0,1))}</span>`);
+    }
+    list.innerHTML = html;
+    $('#onlineCount').textContent = count;
+    $('#onlineAvatars').innerHTML = avas.join('');
+  }
+  if (channel) {
+    channel.onmessage = e => {
+      const d = e.data || {};
+      if (!d.from || d.from === myNick) return;
+      if (d.type === 'hello') {
+        peers.set(d.nick, { last: Date.now(), color: d.color });
+        showToast(`${d.nick} 加入了工坊`);
+        renderPeers();
+        broadcast({ type:'ack', nick:myNick, color:myColor });
+      } else if (d.type === 'ack') {
+        peers.set(d.nick, { last: Date.now(), color: d.color });
+        renderPeers();
+      } else if (d.type === 'progress') {
+        peers.set(d.nick, { last: Date.now(), color: peers.get(d.nick)?.color || '#888' });
+        showToast(`${d.nick} 进入了「${STEPS[d.step]}」`);
+        renderPeers();
+      } else if (d.type === 'chat') {
+        spawnDanmaku(`${d.nick}: ${d.text}`);
+      }
+    };
+    broadcast({ type:'hello', nick:myNick, color:myColor });
+    setInterval(() => broadcast({ type:'ack', nick:myNick, color:myColor }), 5000);
+    setInterval(renderPeers, 5000);
+  }
+  window.sendMsg = function() {
+    const text = $('#msgInput').value.trim();
+    if (!text) return;
+    spawnDanmaku(`${myNick}: ${text}`);
+    broadcast({ type:'chat', nick:myNick, text });
+    $('#msgInput').value = '';
+  };
+  $('#msgInput').addEventListener('keydown', e => { if (e.key === 'Enter') window.sendMsg(); });
+
+  /* ----- 初始化 ----- */
+  drawFlesh();
+  NARR[0]();
+  refreshPills();
+  renderPeers();
+})();
+</script>
+</body>
+</html>
